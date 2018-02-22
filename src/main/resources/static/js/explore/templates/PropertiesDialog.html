@@ -1,0 +1,51 @@
+<div class="modal-header modal-primary">
+  <h3 class="modal-title" id="modal-title">Properties</h3>
+</div>
+<div class="modal-body" id="modal-body">
+  <ul>
+    <li>
+      <label>Path:</label>
+      &nbsp;
+      <tt>{{propertiesFileItem.absolutePath }}</tt>
+    </li>
+    <li>
+      <label>Type:</label>
+      {{propertiesFileItem.fileItemType }}
+    </li>
+    <li>
+      <label>Size:</label>
+      {{propertiesFileItem.size | size:2 }} ({{propertiesFileItem.size | number}} bytes)
+    </li>
+    <li ng-show="propertiesFileItem.isHidden">
+      <label>Hidden:</label>
+      {{propertiesFileItem.isHidden }}
+    </li>
+    <li ng-show="propertiesFileItem.creationTime !== undefined">
+      <label>Created:</label>
+      <tt>{{propertiesFileItem.creationTime | date:'yyyy/MM/dd HH:mm:ss' }}</tt>
+    </li>
+    <li ng-show="propertiesFileItem.lastModifiedTime !== undefined">
+      <label>Modified:</label>
+      <tt>{{propertiesFileItem.lastModifiedTime | date:'yyyy/MM/dd HH:mm:ss' }}</tt>
+    </li>
+    <li ng-show="propertiesFileItem.lastAccessTime !== undefined">
+      <label>Accessed:</label>
+      <tt>{{propertiesFileItem.lastAccessTime | date:'yyyy/MM/dd HH:mm:ss' }}</tt>
+    </li>
+    <li ng-show="propertiesFileItem.owner != null">
+      <label>owner:</label>
+      {{propertiesFileItem.owner |json}}
+    </li>
+    <li ng-show="propertiesFileItem.group != null">
+      <label>group:</label>
+      {{propertiesFileItem.group |json}}
+    </li>
+    <li ng-show="propertiesFileItem.permissions != null">
+      <label>permissions:</label>
+      {{propertiesFileItem.permissions |json}}
+    </li>
+  </ul>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-default" type="button" ng-click="controller.closePropertiesDialog()">Cancel</button>
+</div>

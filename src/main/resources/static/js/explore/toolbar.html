@@ -1,0 +1,103 @@
+<nav class="navbar navbar-default navbar-toolbar">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button"
+                    aria-haspopup="true" aria-expanded="false"> File <span class="caret"></span>
+                </a>
+                    <ul class="dropdown-menu">
+                        <li ng-class="{ disabled: fileItemsGridApi.selection.getSelectedCount() == 0 }"><a
+                            ng-click="controller.openDeleteDialog($event)"> <i class="fa fa-trash-o"></i> Delete
+                        </a></li>
+                        <li ng-class="{ disabled: fileItemsGridApi.selection.getSelectedCount() != 1 }"><a
+                            ng-click="controller.openRenameDialog($event, fileItemsGridApi.selection.getSelectedGridRows()[0])">
+                                <i class="fa fa-pencil"></i> Rename
+                        </a></li>
+                        <li ng-class="{ disabled: fileItemsGridApi.selection.getSelectedCount() != 1 }"><a
+                            ng-click="controller.openPropertiesDialog($event, fileItemsGridApi.selection.getSelectedGridRows()[0])">
+                                <i class="fa fa-info-circle"> </i> Properties
+                        </a></li>
+                    </ul></li>
+                <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button"
+                    aria-haspopup="true" aria-expanded="false"> Edit <span class="caret"></span>
+                </a>
+                    <ul class="dropdown-menu">
+                        <li ng-class="{ disabled: fileItemsGridApi.selection.getSelectedCount() == 0 }"><a> <i
+                                class="fa fa-cut"></i> Cut
+                        </a></li>
+                        <li ng-class="{ disabled: fileItemsGridApi.selection.getSelectedCount() == 0 }"><a
+                            ng-click="controller.openCopyDialog($event)"> <i class="fa fa-copy"></i> Copy
+                        </a></li>
+                        <li><a> <i class="fa fa-paste"></i> Paste
+                        </a></li>
+                        <li role="separator" class="divider"></li>
+                        <li ng-class="{ disabled: fileItemsGridApi.selection.getSelectedCount() == 0 }"><a
+                            ng-click="controller.openCopyToDialog($event)"> <i class="fa fa-folder-open-o"></i> Copy
+                                to directory
+                        </a></li>
+                        <li ng-class="{ disabled: fileItemsGridApi.selection.getSelectedCount() == 0 }"><a
+                            ng-click="controller.openMoveToDialog($event)"> <i class="fa fa-share"></i> Move to
+                                directory
+                        </a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a ng-click="controller.selectAllRows()">Select all</a></li>
+                        <li><a ng-click="controller.clearSelectedRows()">Select none</a></li>
+                        <li><a ng-click="controller.toggleRowSelection()">Invert selection</a></li>
+                    </ul></li>
+                <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button"
+                    aria-haspopup="true" aria-expanded="false"> View <span class="caret"></span>
+                </a>
+                    <ul class="dropdown-menu">
+                        <li ng-class="{ active: view == 'content' }"><a ng-click="controller.switchView('content')">
+                                <i class="fa fa-th-large"></i> Content
+                        </a></li>
+                        <li ng-class="{ active: view == 'details' }"><a ng-click="controller.switchView('details')">
+                                <i class="fa fa-th-list"></i> Details
+                        </a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a ng-click="controller.refreshView()"> <i class="fa fa-refresh"></i> Refresh
+                        </a></li>
+                    </ul></li>
+                <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button"
+                    aria-haspopup="true" aria-expanded="false"> Tools <span class="caret"></span>
+                </a>
+                    <ul class="dropdown-menu">
+                        <li><a ng-click="controller.openUploadDialog($event)"> <i class="fa fa-upload"></i>
+                                Upload
+                        </a></li>
+                        <li ng-class="{ disabled: fileItemsGridApi.selection.getSelectedCount() == 0 }"><a
+                            ng-click="controller.downloadFileItems($event)"> <i class="fa fa-download"></i> Download
+                        </a></li>
+                    </ul></li>
+                <li><a href="https://github.com/rostskadat/fbi-mafia">Help</a></li>
+            </ul>
+            <ol class="breadcrumb navbar-text">
+                <li class="breadcrumb-item"><a class="grid-cell-contents-link"
+                    ng-click="controller.refreshView('/')">&nbsp;/&nbsp;</a></li>
+                <li class="breadcrumb-item" ng-repeat="(index, name) in pathArray"><a
+                    class="grid-cell-contents-link" ng-if="!$last"
+                    ng-click="controller.refreshView(controller.getBreadcrumb(index, name))">{{name}}</a> <span
+                    ng-if="$last">{{name}}</span></li>
+            </ol>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <form class="navbar-form navbar-right">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search">
+                        </div>
+                        <button type="submit" class="btn btn-default">
+                            <i class="fa fa-search"></i> Search
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

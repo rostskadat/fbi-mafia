@@ -1,0 +1,34 @@
+<!doctype html>
+<html xmlns:ng="http://angularjs.org/">
+<head>
+<title>FBI Mafia Explorer</title>
+<base href="/" />
+<link rel="stylesheet" href="css/fbi-mafia-external.css">
+<style type="text/css">
+[ng\:cloak], [ng-cloak], .ng-cloak {
+	display: none !important;
+}
+
+body {
+	height: 100%;
+}
+</style>
+<script type="text/javascript" src="js/fbi-mafia-external.js"></script>
+</head>
+<!-- ng-strict-di  -->
+<body ng:app="fbi-mafia" ng:cloak class="ng-cloak" ng-resize>
+  <div class=".container-fluid" ng:view></div>
+  <script type="text/javascript" src="js/auth/auth.js"></script>
+  <script type="text/javascript" src="js/shared/filters.js"></script>
+  <script type="text/javascript" src="js/shared/Directives.js"></script>
+  <script type="text/javascript" src="js/shared/ngRightClick.js"></script>
+  <script type="text/javascript" src="js/shared/ngResize.js"></script>
+  <script type='text/javascript' src="js/shared/notify.js"></script>
+  <script type="text/javascript" src="js/explore/ExplorerModule.js"></script>
+  <script type="text/javascript" src="js/explore/ExplorerConstants.js"></script>
+  <script type="text/javascript" src="js/explore/ExplorerService.js"></script>
+  <script type="text/javascript" src="js/explore/ExplorerController.js"></script>
+  <script type="text/javascript" src="js/navigation/navigation.js"></script>
+  <script type="text/javascript" src="js/app.js"></script>
+</body>
+</html>

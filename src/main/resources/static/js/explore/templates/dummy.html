@@ -1,0 +1,16 @@
+<div class="ui-grid-cell-contents" title="TOOLTIP" ng-switch on="fileItem.fileItemType">
+    <div ng-switch-when="FOLDER">
+        <i class="fa fa-folder-o"></i><a class="grid-cell-contents-link"
+            ng-click="controller.refreshView(fileItem.absolutePath)">{{fileItem.name}}</a>
+    </div>
+    <div ng-switch-when="FILE">
+        <a class="grid-cell-contents-link link-icon" ng-href="/api/explorer/get?path={{fileItem.absolutePath | escape}}">{{fileItem.name}}</a>
+    </div>
+    <div ng-switch-when="SYMLINK">
+        <i class="fa fa-external-link"></i>&nbsp; <a class="grid-cell-contents-link"
+            ng-click="controller.refreshView(fileItem.absolutePath)">{{fileItem.name}}</a>
+    </div>
+    <div ng-switch-default>
+        <span class="fa fa-question-circle-o"></span>{{fileItem.name}}
+    </div>
+</div>
