@@ -2,6 +2,7 @@ package com.stratio.fbi.mafia.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.cache.Caching;
 import javax.cache.spi.CachingProvider;
@@ -24,6 +25,8 @@ public class SimpleCacheConfig {
 
     public static final String GENERIC_CACHE = "GenericCache";
 
+    public static final URL GENERIC_CACHE_URI = SimpleCacheConfig.class.getResource("/ehcache-jsr107.xml");
+
     @Bean
     public CacheManager cacheManager() {
         LOG.info("Initializing CacheManager...");
@@ -37,7 +40,7 @@ public class SimpleCacheConfig {
         CachingProvider cachingProvider = Caching.getCachingProvider();
         try {
             ClassLoader cl = getClass().getClassLoader();
-            URI uri = getClass().getResource("/ehcache-jsr107.xml").toURI();
+            URI uri = GENERIC_CACHE_URI.toURI();
             LOG.debug("Loading cache definition from " + uri.toString());
             return cachingProvider.getCacheManager(uri, cl);
         } catch (URISyntaxException e) {

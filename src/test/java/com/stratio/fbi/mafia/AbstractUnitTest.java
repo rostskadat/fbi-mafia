@@ -3,7 +3,7 @@ package com.stratio.fbi.mafia;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
-import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import junit.framework.TestCase;
@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 @ContextHierarchy({
         @ContextConfiguration(classes = { Config.class })
 })
-@TestExecutionListeners(listeners = { MyDependencyInjectionTestExecutionListener.class })
+@TestPropertySource(locations = "classpath:randomCosaNostra.properties")
 public abstract class AbstractUnitTest extends TestCase {
 
 }

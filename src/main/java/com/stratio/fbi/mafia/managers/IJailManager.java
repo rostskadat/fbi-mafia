@@ -6,6 +6,6 @@ public interface IJailManager {
 
     void sendToJail(Mafioso mafioso);
 
-    void releaseFromJail(String mafiosoId);
+    Mafioso releaseFromJail(String id);
 
 }

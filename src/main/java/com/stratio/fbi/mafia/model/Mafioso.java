@@ -1,11 +1,8 @@
 package com.stratio.fbi.mafia.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -34,9 +31,6 @@ public class Mafioso implements Serializable {
 	
     @Column
 	private Integer age;
-
-    @ElementCollection
-    private List<String> subordinates = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -68,14 +62,6 @@ public class Mafioso implements Serializable {
 
     public void setAge(Integer age) {
         this.age = age;
-    }
-
-    public List<String> getSubordinates() {
-        return subordinates;
-    }
-
-    public void setSubordinates(List<String> subordinates) {
-        this.subordinates = subordinates;
     }
 
     @Override
