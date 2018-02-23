@@ -1,0 +1,5 @@
+# https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-logging.html
+logging:
+  level:
+    root: DEBUG
+    org.springframework : INFO
