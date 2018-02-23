@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,9 +19,9 @@ import com.stratio.fbi.mafia.model.Mafioso;
 @RequestMapping("/api/mafia")
 public class ExplorerController {
 
-	private static final Log LOG = LogFactory.getLog(ExplorerController.class);
+    private static final Log LOG = LogFactory.getLog(ExplorerController.class);
 
-	@GetMapping("/tree")
+    @GetMapping(value = "/tree", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public List<Mafioso> tree(@RequestParam("mafiosoId") String rootMafiosoId) {
 		if (StringUtils.isNotBlank(rootMafiosoId)) {
@@ -35,7 +36,7 @@ public class ExplorerController {
 	 * 
 	 * @return
 	 */
-	@GetMapping("/getListToWatch")
+    @GetMapping(value = "/getListToWatch", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public List<Mafioso> getListToWatch() {
 		return new ArrayList<>();

@@ -37,7 +37,7 @@
     uses-template="SpringFoxCache" />
 
   <cache
-    alias="fileProperties"
+    alias="GenericCache"
     uses-template="LocalLongLivedCache" />
 
 </config>

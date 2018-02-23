@@ -14,9 +14,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@SpringBootApplication
 @Controller
+@SpringBootApplication
 public class Application {
+
+    private static final Log LOG = LogFactory.getLog(Application.class);
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -28,14 +30,14 @@ public class Application {
 
 			@Override
 			public void run(String... arg0) throws Exception {
-				Log log = LogFactory.getLog(Application.class);
-				log.info(format("Starting %s. Please standby...", Application.class.getName()));
-				if (log.isDebugEnabled()) {
-					log.debug("Let's inspect the beans provided by Spring Boot:");
+                // Log log = LogFactory.getLog(Application.class);
+                System.out.println(format("Starting %s. Please standby...", Application.class.getName()));
+                if (true/* LOG.isDebugEnabled() */) {
+                    System.out.println("Let's inspect the beans provided by Spring Boot:");
 					String[] beanNames = ctx.getBeanDefinitionNames();
 					Arrays.sort(beanNames);
 					for (String beanName : beanNames) {
-						log.debug(beanName);
+                        System.out.println(beanName);
 					}
 				}
 			}
