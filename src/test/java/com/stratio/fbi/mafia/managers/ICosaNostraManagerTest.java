@@ -1,41 +1,41 @@
 package com.stratio.fbi.mafia.managers;
 
-import java.util.List;
+import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.stratio.fbi.mafia.AbstractUnitTest;
-import com.stratio.fbi.mafia.demo.RandomCosaNostra;
-import com.stratio.fbi.mafia.model.MafiaCell;
+import com.stratio.fbi.mafia.demo.CosaNostraFactory;
 import com.stratio.fbi.mafia.model.Mafioso;
+import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 
 public class ICosaNostraManagerTest extends AbstractUnitTest {
-
-    private static final Log LOG = LogFactory.getLog(ICosaNostraManagerTest.class);
-
-    @Autowired
-    RandomCosaNostra randomCosaNostra;
 
     @Autowired
     ICosaNostraManager cosaNostraManager;
 
+    @Autowired
+    CosaNostraFactory factory;
+
+    @Value("${maxMafioso}")
+    private Integer MAX_MAFIOSO;
+
     @Test
     public void testGetCapos() {
-        List<Mafioso> capos = cosaNostraManager.getCapos();
-        assertNotNull(capos);
-        assertTrue(capos.size() > 0);
-        for (Mafioso capo : capos) {
-            assertNotNull(capo);
+        MafiaOrganization organization = factory.getTreeOrganization();
+        assertNotNull(organization);
+        Iterator<Mafioso> iterator = organization.iterator();
+        assertNotNull(iterator);
+        assertTrue(iterator.hasNext());
+        int i = 0;
+        while (iterator.hasNext()) {
+            Mafioso mafioso = iterator.next();
+            assertNotNull(mafioso);
+            i++;
         }
-    }
-    
-    @Test
-    public void getCurrentOrganization() {
-        MafiaCell mafiaCell = cosaNostraManager.getCupula();
-        assertNotNull(mafiaCell);
-        assertTrue(mafiaCell.getSubordinates().size() > 0);
+        assertTrue(MAX_MAFIOSO == i);
+
     }
 }

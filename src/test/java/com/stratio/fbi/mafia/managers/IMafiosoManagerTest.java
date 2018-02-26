@@ -19,14 +19,11 @@ import org.springframework.cache.CacheManager;
 
 import com.stratio.fbi.mafia.AbstractUnitTest;
 import com.stratio.fbi.mafia.config.SimpleCacheConfig;
-import com.stratio.fbi.mafia.demo.RandomCosaNostra;
+import com.stratio.fbi.mafia.demo.CosaNostraFactory;
 import com.stratio.fbi.mafia.exception.ResourceNotFoundException;
 import com.stratio.fbi.mafia.model.Mafioso;
 
 public class IMafiosoManagerTest extends AbstractUnitTest {
-
-    @Autowired
-    RandomCosaNostra randomCosaNostra;
 
     @Autowired
     IMafiosoManager mafiosoManager;
@@ -34,12 +31,12 @@ public class IMafiosoManagerTest extends AbstractUnitTest {
     @Autowired
     CacheManager cacheManager;
 
+    @Autowired
+    CosaNostraFactory factory;
+
     @Test
     public void testAddMafioso() {
-        Mafioso alCapone = new Mafioso();
-        alCapone.setFirstName("Al");
-        alCapone.setLastName("Capone");
-        alCapone.setAge(48);
+        Mafioso alCapone = factory.createGodfather();
         Mafioso mafioso = mafiosoManager.add(alCapone);
         assertEquals(alCapone, mafioso);
         mafioso = mafiosoManager.get(alCapone.getId());
@@ -55,12 +52,9 @@ public class IMafiosoManagerTest extends AbstractUnitTest {
 
     @Test
     public void testUpdateMafioso() {
-        assertTrue(mafiosoManager.exists("1"));
-        Mafioso alCapone = new Mafioso();
-        alCapone.setFirstName("Al");
-        alCapone.setLastName("Capone");
-        alCapone.setAge(48);
+        Mafioso alCapone = factory.createGodfather();
         Mafioso mafioso = mafiosoManager.add(alCapone);
+        assertTrue(mafiosoManager.exists(mafioso.getId()));
         assertEquals(alCapone, mafioso);
         mafioso = mafiosoManager.get(alCapone.getId());
         assertEquals(alCapone, mafioso);
@@ -73,12 +67,9 @@ public class IMafiosoManagerTest extends AbstractUnitTest {
 
     @Test
     public void testDeleteMafioso() {
-        assertTrue(mafiosoManager.exists("1"));
-        Mafioso alCapone = new Mafioso();
-        alCapone.setFirstName("Al");
-        alCapone.setLastName("Capone");
-        alCapone.setAge(48);
+        Mafioso alCapone = factory.createGodfather();
         Mafioso mafioso = mafiosoManager.add(alCapone);
+        assertTrue(mafiosoManager.exists(mafioso.getId()));
         assertEquals(alCapone, mafioso);
         mafioso = mafiosoManager.get(alCapone.getId());
         assertEquals(alCapone, mafioso);

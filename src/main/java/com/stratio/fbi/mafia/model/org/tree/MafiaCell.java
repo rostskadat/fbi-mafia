@@ -1,8 +1,12 @@
-package com.stratio.fbi.mafia.model;
+package com.stratio.fbi.mafia.model.org.tree;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.stratio.fbi.mafia.model.Mafioso;
 
 /**
  * @see https://github.com/gt4dev/yet-another-tree-structure
@@ -10,18 +14,10 @@ import java.util.List;
 public class MafiaCell implements Iterable<MafiaCell> {
 
     private Mafioso mafioso;
-    private MafiaCell bossCell;
+    private MafiaCell boss;
     private List<MafiaCell> subordinates;
 
     private List<MafiaCell> elementsIndex;
-
-    public boolean isRoot() {
-        return bossCell == null;
-    }
-
-    public boolean isLeaf() {
-        return subordinates.size() == 0;
-    }
 
     public MafiaCell() {
         this.subordinates = new LinkedList<>();
@@ -36,38 +32,48 @@ public class MafiaCell implements Iterable<MafiaCell> {
         this.elementsIndex.add(this);
     }
 
-    public MafiaCell addSubordinate(Mafioso subordinate) {
-        MafiaCell subordinateNode = new MafiaCell(subordinate);
-        subordinateNode.bossCell = this;
-        this.subordinates.add(subordinateNode);
-        this.registerChildForSearch(subordinateNode);
-        return subordinateNode;
+    public boolean isRoot() {
+        return boss == null;
     }
 
-    public MafiaCell setBoss(Mafioso boss) {
-        this.bossCell = new MafiaCell(boss);
-        return this.bossCell;
+    public boolean isLeaf() {
+        return subordinates.isEmpty();
+    }
+
+    public void addSubordinate(Mafioso subordinate) {
+        MafiaCell subordinateNode = new MafiaCell(subordinate);
+        subordinateNode.boss = this;
+        this.subordinates.add(subordinateNode);
+        this.registerChildForSearch(subordinateNode);
+    }
+
+    public void setBoss(Mafioso boss) {
+        this.boss = new MafiaCell(boss);
     }
 
     public int getLevel() {
         if (this.isRoot())
             return 0;
         else
-            return bossCell.getLevel() + 1;
+            return boss.getLevel() + 1;
     }
 
     private void registerChildForSearch(MafiaCell node) {
         elementsIndex.add(node);
-        if (bossCell != null) {
-            bossCell.registerChildForSearch(node);
+        if (boss != null) {
+            boss.registerChildForSearch(node);
         }
     }
 
-    public MafiaCell findMafiaCell(Comparable<Mafioso> cmp) {
-        for (MafiaCell element : this.elementsIndex) {
-            Mafioso elData = element.mafioso;
-            if (cmp.compareTo(elData) == 0)
-                return element;
+    public MafiaCell findMafiaCell(Mafioso mafioso) {
+        if (mafioso == null) {
+            throw new IllegalArgumentException("Mafioso can't be null");
+        }
+        for (MafiaCell cell : this.elementsIndex) {
+            Mafioso other = cell.mafioso;
+            if (StringUtils.equals(mafioso.getId(), other.getId())) {
+                return cell;
+            }
         }
 
         return null;
@@ -76,11 +82,6 @@ public class MafiaCell implements Iterable<MafiaCell> {
     @Override
     public String toString() {
         return mafioso != null ? mafioso.toString() : "[mafioso null]";
-    }
-
-    @Override
-    public Iterator<MafiaCell> iterator() {
-        return new MafiaCellIterator(this);
     }
 
     public Mafioso getMafioso() {
@@ -92,11 +93,11 @@ public class MafiaCell implements Iterable<MafiaCell> {
     }
 
     public MafiaCell getBossCell() {
-        return bossCell;
+        return boss;
     }
 
     public void setBossCell(MafiaCell bossCell) {
-        this.bossCell = bossCell;
+        this.boss = bossCell;
     }
 
     public List<MafiaCell> getSubordinates() {
@@ -105,6 +106,11 @@ public class MafiaCell implements Iterable<MafiaCell> {
 
     public void setSubordinates(List<MafiaCell> subordinates) {
         this.subordinates = subordinates;
+    }
+
+    @Override
+    public Iterator<MafiaCell> iterator() {
+        return new MafiaCellIterator(this);
     }
 
 }

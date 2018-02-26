@@ -1,4 +1,4 @@
-package com.stratio.fbi.mafia.model;
+package com.stratio.fbi.mafia.model.org.tree;
 
 import java.util.Iterator;
 

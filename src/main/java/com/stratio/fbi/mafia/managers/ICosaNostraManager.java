@@ -1,17 +1,13 @@
 package com.stratio.fbi.mafia.managers;
 
-import java.util.List;
+import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 
-import com.stratio.fbi.mafia.model.MafiaCell;
-import com.stratio.fbi.mafia.model.Mafioso;
-
+@SuppressWarnings("rawtypes")
 public interface ICosaNostraManager {
 
-    List<Mafioso> getCapos();
+    void setOrganization(MafiaOrganization organization);
 
-    MafiaCell getCupula();
-
-    void addSubordinate(Mafioso boss, Mafioso mafioso);
+    MafiaOrganization getOrganization();
 
     void sendToJail(String id);
 

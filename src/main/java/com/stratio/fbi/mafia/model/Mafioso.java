@@ -10,6 +10,8 @@ import javax.persistence.Table;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stratio.fbi.mafia.config.JPAConfig;
 
 @Entity
@@ -83,5 +85,13 @@ public class Mafioso implements Serializable {
                 && ObjectUtils.equals(age, other.age);
     }
 
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return e.getMessage();
+        }
+    }
 
 }

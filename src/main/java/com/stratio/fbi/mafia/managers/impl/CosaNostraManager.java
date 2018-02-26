@@ -1,8 +1,6 @@
 package com.stratio.fbi.mafia.managers.impl;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +8,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.stratio.fbi.mafia.managers.ICosaNostraManager;
-import com.stratio.fbi.mafia.model.MafiaCell;
 import com.stratio.fbi.mafia.model.Mafioso;
+import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 
+/**
+ * 
+ * @author rostskadat
+ *
+ */
 @Component
 public class CosaNostraManager implements ICosaNostraManager {
 
     @Value("${capo.threshold}")
     private Integer capoThreshold;
+
+    @Value("${isSubordinateCountDeep:false}")
+    private Boolean isDeep;
 
     @Autowired
     MafiosoManager mafiosoManager;
@@ -28,40 +34,23 @@ public class CosaNostraManager implements ICosaNostraManager {
     @Autowired
     JailManager jailManager;
 
-    MafiaCell cupula = new MafiaCell();
+    MafiaOrganization organization;
 
     @Override
-    public List<Mafioso> getCapos() {
-        List<Mafioso> capos = new ArrayList<>();
-        getCaposInCell(getCupula(), capos);
-        return capos;
-    }
-
-    private void getCaposInCell(MafiaCell mafiaCell, List<Mafioso> capos) {
-        for (MafiaCell member : mafiaCell.getSubordinates()) {
-            if (member.getSubordinates().size() >= capoThreshold) {
-                capos.add(member.getMafioso());
-            }
-        }
+    public void setOrganization(MafiaOrganization organization) {
+        this.organization = organization;
     }
 
     @Override
-    public MafiaCell getCupula() {
-        return cupula;
-    }
-
-    @Override
-    public void addSubordinate(Mafioso boss, Mafioso mafioso) {
-        if (mafioso == null) {
-            throw new IllegalArgumentException("Mafioso can't be null");
-        }
+    public MafiaOrganization getOrganization() {
+        return organization;
     }
 
     @Override
     public void sendToJail(String id) {
-        Iterator<MafiaCell> i = cupula.getSubordinates().iterator();
+        Iterator<Mafioso> i = organization.iterator();
         while (i.hasNext()) {
-            Mafioso mafioso = i.next().getMafioso();
+            Mafioso mafioso = i.next();
             if (StringUtils.equals(mafioso.getId(), id)) {
                 jailManager.sendToJail(mafioso);
                 i.remove();
@@ -79,9 +68,9 @@ public class CosaNostraManager implements ICosaNostraManager {
 
     @Override
     public void sendToCemetery(String id) {
-        Iterator<MafiaCell> i = cupula.getSubordinates().iterator();
+        Iterator<Mafioso> i = organization.iterator();
         while (i.hasNext()) {
-            Mafioso mafioso = i.next().getMafioso();
+            Mafioso mafioso = i.next();
             if (StringUtils.equals(mafioso.getId(), id)) {
                 cemeteryManager.sendToCemetery(mafioso);
                 i.remove();
