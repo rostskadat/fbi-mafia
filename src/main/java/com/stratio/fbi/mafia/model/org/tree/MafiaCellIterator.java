@@ -7,68 +7,74 @@ import java.util.Iterator;
  */
 public class MafiaCellIterator implements Iterator<MafiaCell> {
 
-    enum ProcessStages {
-        ProcessParent, ProcessChildCurNode, ProcessChildSubNode
-    }
+	enum ProcessStages {
+		ProcessParent, ProcessChildCurNode, ProcessChildSubNode
+	}
 
-    private MafiaCell treeNode;
+	private MafiaCell treeNode;
 
-    public MafiaCellIterator(MafiaCell treeNode) {
-        this.treeNode = treeNode;
-        this.doNext = ProcessStages.ProcessParent;
-        this.childrenCurNodeIter = treeNode.getSubordinates().iterator();
-    }
+	public MafiaCellIterator(MafiaCell treeNode) {
+		this.treeNode = treeNode;
+		this.doNext = ProcessStages.ProcessParent;
+		this.childrenCurNodeIter = treeNode.getSubordinates().iterator();
+	}
 
-    private ProcessStages doNext;
-    private MafiaCell next;
-    private Iterator<MafiaCell> childrenCurNodeIter;
-    private Iterator<MafiaCell> childrenSubNodeIter;
+	public MafiaCellIterator(MafiaCell treeNode, boolean onlySubordinates) {
+		this.treeNode = treeNode;
+		this.doNext = onlySubordinates ? ProcessStages.ProcessChildCurNode : ProcessStages.ProcessParent;
+		this.childrenCurNodeIter = treeNode.getSubordinates().iterator();
+	}
 
-    @Override
-    public boolean hasNext() {
+	private ProcessStages doNext;
+	private MafiaCell next;
+	private Iterator<MafiaCell> childrenCurNodeIter;
+	private Iterator<MafiaCell> childrenSubNodeIter;
 
-        if (this.doNext == ProcessStages.ProcessParent) {
-            this.next = this.treeNode;
-            this.doNext = ProcessStages.ProcessChildCurNode;
-            return true;
-        }
+	@Override
+	public boolean hasNext() {
 
-        if (this.doNext == ProcessStages.ProcessChildCurNode) {
-            if (childrenCurNodeIter.hasNext()) {
-                MafiaCell childDirect = childrenCurNodeIter.next();
-                childrenSubNodeIter = childDirect.iterator();
-                this.doNext = ProcessStages.ProcessChildSubNode;
-                return hasNext();
-            }
+		if (this.doNext == ProcessStages.ProcessParent) {
+			this.next = this.treeNode;
+			this.doNext = ProcessStages.ProcessChildCurNode;
+			return true;
+		}
 
-            else {
-                this.doNext = null;
-                return false;
-            }
-        }
+		if (this.doNext == ProcessStages.ProcessChildCurNode) {
+			if (childrenCurNodeIter.hasNext()) {
+				MafiaCell childDirect = childrenCurNodeIter.next();
+				childrenSubNodeIter = childDirect.iterator();
+				this.doNext = ProcessStages.ProcessChildSubNode;
+				return hasNext();
+			}
 
-        if (this.doNext == ProcessStages.ProcessChildSubNode) {
-            if (childrenSubNodeIter.hasNext()) {
-                this.next = childrenSubNodeIter.next();
-                return true;
-            } else {
-                this.next = null;
-                this.doNext = ProcessStages.ProcessChildCurNode;
-                return hasNext();
-            }
-        }
+			else {
+				this.doNext = null;
+				return false;
+			}
+		}
 
-        return false;
-    }
+		if (this.doNext == ProcessStages.ProcessChildSubNode) {
+			if (childrenSubNodeIter.hasNext()) {
+				this.next = childrenSubNodeIter.next();
+				return true;
+			} else {
+				this.next = null;
+				this.doNext = ProcessStages.ProcessChildCurNode;
+				return hasNext();
+			}
+		}
 
-    @Override
-    public MafiaCell next() {
-        return this.next;
-    }
+		return false;
+	}
 
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException();
-    }
+	@Override
+	public MafiaCell next() {
+		return this.next;
+	}
+
+	@Override
+	public void remove() {
+		throw new UnsupportedOperationException();
+	}
 
 }

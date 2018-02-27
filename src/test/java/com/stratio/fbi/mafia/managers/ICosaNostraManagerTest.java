@@ -13,29 +13,29 @@ import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 
 public class ICosaNostraManagerTest extends AbstractUnitTest {
 
-    @Autowired
-    ICosaNostraManager cosaNostraManager;
+	@Autowired
+	ICosaNostraManager cosaNostraManager;
 
-    @Autowired
-    CosaNostraFactory factory;
+	@Autowired
+	CosaNostraFactory factory;
 
-    @Value("${maxMafioso}")
-    private Integer MAX_MAFIOSO;
+	@Value("${maxMafioso}")
+	private Integer MAX_MAFIOSO;
 
-    @Test
-    public void testGetCapos() {
-        MafiaOrganization organization = factory.getTreeOrganization();
-        assertNotNull(organization);
-        Iterator<Mafioso> iterator = organization.iterator();
-        assertNotNull(iterator);
-        assertTrue(iterator.hasNext());
-        int i = 0;
-        while (iterator.hasNext()) {
-            Mafioso mafioso = iterator.next();
-            assertNotNull(mafioso);
-            i++;
-        }
-        assertTrue(MAX_MAFIOSO == i);
+	@Test
+	public void testGetCapos() {
+		MafiaOrganization organization = factory.getTreeOrganization();
+		assertNotNull(organization);
+		Iterator<Mafioso> iterator = organization.getSubordinates(organization.getCupula());
+		assertNotNull(iterator);
+		assertTrue(iterator.hasNext());
+		int i = 0;
+		while (iterator.hasNext()) {
+			Mafioso mafioso = iterator.next();
+			assertNotNull(mafioso);
+			i++;
+		}
+		assertTrue(MAX_MAFIOSO == i);
 
-    }
+	}
 }

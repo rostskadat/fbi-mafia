@@ -2,17 +2,16 @@ package com.stratio.fbi.mafia.managers;
 
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 
-@SuppressWarnings("rawtypes")
 public interface ICosaNostraManager {
 
-    void setOrganization(MafiaOrganization organization);
+	void setOrganization(MafiaOrganization organization);
 
-    MafiaOrganization getOrganization();
+	MafiaOrganization getOrganization();
 
-    void sendToJail(String id);
+	void sendToJail(String id);
 
-    void releaseFromJail(String id);
+	void releaseFromJail(String id);
 
-    void sendToCemetery(String id);
+	void sendToCemetery(String id);
 
 }

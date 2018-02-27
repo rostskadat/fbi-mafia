@@ -25,91 +25,90 @@ import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 @TestComponent
 public class CosaNostraFactory {
 
-    private static final Log LOG = LogFactory.getLog(CosaNostraFactory.class);
+	private static final Log LOG = LogFactory.getLog(CosaNostraFactory.class);
 
-    @Value("${isSubordinateCountDeep:false}")
-    private Boolean isDeep;
+	@Value("${isSubordinateCountDeep:false}")
+	private Boolean isDeep;
 
-    @Value("${firstNames}")
-    private String firstNamesParam;
-    private List<String> firstNames = new ArrayList<>();
+	@Value("${firstNames}")
+	private String firstNamesParam;
+	private List<String> firstNames = new ArrayList<>();
 
-    @Value("${lastNames}")
-    private String lastNamesParam;
-    private List<String> lastNames = new ArrayList<>();
+	@Value("${lastNames}")
+	private String lastNamesParam;
+	private List<String> lastNames = new ArrayList<>();
 
-    @Value("${maxMafioso}")
-    private Integer MAX_MAFIOSO;
+	@Value("${maxMafioso}")
+	private Integer MAX_MAFIOSO;
 
-    @Autowired
-    IMafiosoManager mafiosoManager;
+	@Autowired
+	IMafiosoManager mafiosoManager;
 
-    @PostConstruct
-    private void postConstruct() {
-        if (StringUtils.isNotBlank(firstNamesParam)) {
-            firstNames.addAll(Arrays.asList(StringUtils.split(firstNamesParam, ", ; ")));
-        }
-        if (StringUtils.isNotBlank(lastNamesParam)) {
-            lastNames.addAll(Arrays.asList(StringUtils.split(lastNamesParam, ", ; ")));
-        }
-    }
+	@PostConstruct
+	private void postConstruct() {
+		if (StringUtils.isNotBlank(firstNamesParam)) {
+			firstNames.addAll(Arrays.asList(StringUtils.split(firstNamesParam, ", ; ")));
+		}
+		if (StringUtils.isNotBlank(lastNamesParam)) {
+			lastNames.addAll(Arrays.asList(StringUtils.split(lastNamesParam, ", ; ")));
+		}
+	}
 
-    public MafiaOrganization getTreeOrganization() {
-        return createOrganization(createTree(createGodfather(), isDeep));
-    }
+	public MafiaOrganization getTreeOrganization() {
+		return createOrganization(createTree(createGodfather(), isDeep));
+	}
 
-    public MafiaOrganization getPathListOrganization() {
-        return createOrganization(createPathList(createGodfather(), isDeep));
-    }
+	public MafiaOrganization getPathListOrganization() {
+		return createOrganization(createPathList(createGodfather(), isDeep));
+	}
 
-    public MafiaOrganization getRelationListOrganization() {
-        return createOrganization(createRelationList(createGodfather(), isDeep));
-    }
+	public MafiaOrganization getRelationListOrganization() {
+		return createOrganization(createRelationList(createGodfather(), isDeep));
+	}
 
-    public Mafioso createGodfather() {
-        Mafioso godfather = new Mafioso();
-        godfather.setId("0");
-        godfather.setFirstName("Al");
-        godfather.setLastName("Capone");
-        godfather.setAge(48);
-        return godfather;
-    }
+	public Mafioso createGodfather() {
+		Mafioso godfather = new Mafioso();
+		godfather.setId("0");
+		godfather.setFirstName("Al");
+		godfather.setLastName("Capone");
+		godfather.setAge(48);
+		return godfather;
+	}
 
-    public Mafioso createRandomMafioso() {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-        Mafioso mafioso = new Mafioso();
-        mafioso.setId(null);
-        mafioso.setFirstName(firstNames.get(random.nextInt(0, firstNames.size())));
-        mafioso.setLastName(lastNames.get(random.nextInt(0, lastNames.size())));
-        mafioso.setAge(random.nextInt(18, 100));
-        return mafioso;
-    }
+	public Mafioso createRandomMafioso() {
+		ThreadLocalRandom random = ThreadLocalRandom.current();
+		Mafioso mafioso = new Mafioso();
+		mafioso.setId(null);
+		mafioso.setFirstName(firstNames.get(random.nextInt(0, firstNames.size())));
+		mafioso.setLastName(lastNames.get(random.nextInt(0, lastNames.size())));
+		mafioso.setAge(random.nextInt(18, 100));
+		return mafioso;
+	}
 
-    private MafiaOrganization createOrganization(MafiaOrganization organization) {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-        List<Mafioso> mafiosos = new ArrayList<>();
-        Mafioso boss = organization.getCupula();
-        boss.setId("0");
-        mafiosos.add(boss);
-        for (int i = 1; i < MAX_MAFIOSO; i++) {
-            Mafioso mafioso = createRandomMafioso();
-            mafioso.setId(String.valueOf(i));
-            mafiosos.add(mafioso);
-            organization.addSubordinate(boss, mafioso);
-            int lowerBound = 0;
-            int upperBound = mafiosos.size() - 1;
-            if (lowerBound < upperBound) {
-                boss = mafiosos.get(random.nextInt(lowerBound, upperBound));
-            }
-            LOG.debug(String.format("Added mafioso #%s: %s %s aged %d as a subordinate to %s %s",
-                    mafioso.getId(),
-                    mafioso.getFirstName(),
-                    mafioso.getLastName(),
-                    mafioso.getAge(),
-                    boss.getFirstName(),
-                    boss.getLastName()));
-        }
-        return organization;
-    }
+	private MafiaOrganization createOrganization(MafiaOrganization organization) {
+		ThreadLocalRandom random = ThreadLocalRandom.current();
+		List<Mafioso> mafiosos = new ArrayList<>();
+		Mafioso boss = organization.getCupula();
+		boss.setId("0");
+		mafiosos.add(boss);
+		for (int i = 1; i < MAX_MAFIOSO; i++) {
+			Mafioso mafioso = createRandomMafioso();
+			mafioso.setId(String.valueOf(i));
+			mafiosos.add(mafioso);
+			organization.addSubordinate(boss, mafioso);
+			int lowerBound = 0;
+			int upperBound = mafiosos.size() - 1;
+			if (lowerBound < upperBound) {
+				// Spread the subordinates around the organization
+				boss = mafiosos.get(random.nextInt(lowerBound, upperBound));
+			}
+			if (LOG.isDebugEnabled()) {
+				LOG.debug(String.format("Added mafioso #%s: %s %s aged %d as a subordinate to %s %s", mafioso.getId(),
+				        mafioso.getFirstName(), mafioso.getLastName(), mafioso.getAge(), boss.getFirstName(),
+				        boss.getLastName()));
+			}
+		}
+		return organization;
+	}
 
 }
