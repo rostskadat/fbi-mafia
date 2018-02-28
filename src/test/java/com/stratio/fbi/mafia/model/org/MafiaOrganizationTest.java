@@ -1,10 +1,12 @@
 package com.stratio.fbi.mafia.model.org;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -18,9 +20,9 @@ import com.stratio.fbi.mafia.model.Mafioso;
 
 public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MafiaOrganizationTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MafiaOrganizationTest.class);
 
-	@Autowired
+    @Autowired
 	CosaNostraFactory factory;
 
 	@Value("${maxMafioso}")
@@ -32,12 +34,15 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 
 	@Before
 	public void before() {
+        long start = new Date().getTime();
 		this.organization = getMafiaOrganization();
+        LOG.info(String.format("Created organization %s in %dms", this.organization.getClass().getSimpleName(),
+                new Date().getTime() - start));
 	}
 
 	@Test
 	public void testIterator() {
-		LOG.info("Testing iterator...");
+        long start = new Date().getTime();
 		assertNotNull(organization);
 		Iterator<Mafioso> iterator = organization.iterator();
 		assertNotNull(iterator);
@@ -57,21 +62,31 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 		assertNotNull(iterator);
 		int totalSubordinateSeen = 0;
 		while (iterator.hasNext()) {
-			Mafioso mafioso = iterator.next();
+            Mafioso mafioso = iterator.next();
 			testMafioso(mafioso);
-			iterator.remove();
 			totalSubordinateSeen++;
 		}
 		assertEquals(totalSubordinateSeen, (int) MAX_MAFIOSO);
-		iterator = organization.iterator();
-		assertFalse(iterator.hasNext());
 
-		LOG.info("Testing iterator... Done");
+        // Ok let's test the iterator behavior
+		iterator = organization.iterator();
+        assertNotNull(iterator);
+        while (iterator.hasNext()) {
+            iterator.next();
+            try {
+                iterator.remove();
+                assertFalse("remove can only happens through the organization.remove()", true);
+            } catch (UnsupportedOperationException e) {
+                // NA
+                break;
+            }
+        }
+        LOG.info(String.format("Tested iterator in %dms", new Date().getTime() - start));
 	}
 
 	@Test
 	public void testCupula() {
-		LOG.info("Testing cupula...");
+        long start = new Date().getTime();
 		Mafioso alCapone = factory.createGodfather();
 		Mafioso oldCupula = organization.getCupula();
 		assertNotNull(oldCupula);
@@ -87,12 +102,12 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 		oldCupula2 = organization.getCupula();
 		testMafioso(oldCupula2);
 		assertMafiosoEquals(newCupula, oldCupula2);
-		LOG.info("Testing cupula... Done");
+        LOG.info(String.format("Tested cupula in %dms", new Date().getTime() - start));
 	}
 
 	@Test
 	public void testAddSubordinate() {
-		LOG.info("Testing adding subordinates...");
+        long start = new Date().getTime();
 		Mafioso newRecruit = factory.createRandomMafioso();
 		newRecruit.setId(UUID.randomUUID().toString());
 		testMafioso(newRecruit);
@@ -124,18 +139,20 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 
 		subordinatesSeen = testSubordinate(newRecruit, latestRecruit);
 		assertEquals(subordinatesSeen, 2);
-		LOG.info("Testing adding subordinates... Done");
+        LOG.info(String.format("Tested adding subordinates in %dms", new Date().getTime() - start));
 	}
 
 	@Test
 	public void testRemoveSubordinate() {
+        long start = new Date().getTime();
 		Mafioso newRecruit = factory.createRandomMafioso();
 		newRecruit.setId(UUID.randomUUID().toString());
 		testMafioso(newRecruit);
 		Mafioso cupula = organization.getCupula();
 		organization.addSubordinate(cupula, newRecruit);
 		int initialTotalSubordinateSeen = testSubordinate(cupula, newRecruit);
-		organization.remove(newRecruit);
+        assertEquals(initialTotalSubordinateSeen, (int) MAX_MAFIOSO);
+        organization.removeFromOrganization(newRecruit);
 
 		Iterator<Mafioso> iterator = organization.getSubordinates(cupula);
 		assertNotNull(iterator);
@@ -143,12 +160,65 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 		while (iterator.hasNext()) {
 			Mafioso mafioso = iterator.next();
 			testMafioso(mafioso);
-			if (mafioso.equals(newRecruit)) {
+            if (StringUtils.equals(mafioso.getId(), newRecruit.getId())) {
 				assertTrue(false);
 			}
 			totalSubordinateSeen++;
 		}
 		assertEquals(initialTotalSubordinateSeen, totalSubordinateSeen + 1);
+
+        // Ok let's check that we promote the oldest of the subordinate
+        iterator = organization.getSubordinates(cupula);
+        assertNotNull(iterator);
+        while (iterator.hasNext()) {
+            iterator.next();
+            try {
+                iterator.remove();
+                assertFalse("remove can only happens through the organization.remove()", true);
+            } catch (UnsupportedOperationException e) {
+                // NA
+                break;
+            }
+        }
+
+        // I create 2 level, it's easier to check...
+        Mafioso intermediaryBoss = factory.createRandomMafioso();
+        intermediaryBoss.setId(UUID.randomUUID().toString());
+        intermediaryBoss.setAge(50);
+        Mafioso intermediaryCapo = factory.createRandomMafioso();
+        intermediaryCapo.setId(UUID.randomUUID().toString());
+        intermediaryCapo.setAge(40);
+        organization.addSubordinate(cupula, intermediaryBoss);
+        organization.addSubordinate(intermediaryBoss, intermediaryCapo);
+        newRecruit = factory.createRandomMafioso();
+        newRecruit.setId(UUID.randomUUID().toString());
+        newRecruit.setAge(20);
+        organization.addSubordinate(intermediaryCapo, newRecruit);
+        Mafioso futureCapo = factory.createRandomMafioso();
+        futureCapo.setId(UUID.randomUUID().toString());
+        futureCapo.setAge(30);
+        organization.addSubordinate(intermediaryCapo, futureCapo);
+        organization.removeFromOrganization(intermediaryCapo);
+        iterator = organization.getSubordinates(intermediaryBoss);
+        assertNotNull(iterator);
+        totalSubordinateSeen = 0;
+        while (iterator.hasNext()) {
+            Mafioso mafioso = iterator.next();
+            testMafioso(mafioso);
+            totalSubordinateSeen++;
+        }
+        assertEquals(totalSubordinateSeen, 2);
+        iterator = organization.getSubordinates(futureCapo);
+        assertNotNull(iterator);
+        totalSubordinateSeen = 0;
+        while (iterator.hasNext()) {
+            Mafioso mafioso = iterator.next();
+            testMafioso(mafioso);
+            assertEquals((int) mafioso.getAge(), 20);
+            totalSubordinateSeen++;
+        }
+        assertEquals(totalSubordinateSeen, 1);
+        LOG.info(String.format("Tested removing subordinates in %dms", new Date().getTime() - start));
 	}
 
 	private int testSubordinate(Mafioso boss, Mafioso subordinate) {
@@ -166,7 +236,6 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 		}
 		assertTrue(seenSubordinate);
 		return totalSubordinateSeen;
-
 	}
 
 	private void assertMafiosoEquals(Mafioso m1, Mafioso m2) {

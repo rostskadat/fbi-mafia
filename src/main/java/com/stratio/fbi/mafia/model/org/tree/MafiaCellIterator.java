@@ -1,6 +1,7 @@
 package com.stratio.fbi.mafia.model.org.tree;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * @see https://github.com/gt4dev/yet-another-tree-structure
@@ -8,58 +9,53 @@ import java.util.Iterator;
 public class MafiaCellIterator implements Iterator<MafiaCell> {
 
 	enum ProcessStages {
-		ProcessParent, ProcessChildCurNode, ProcessChildSubNode
+		PARENT, CHILDREN_CURRENT_NODE, CHILDREN_SUB_NODE
 	}
 
-	private MafiaCell treeNode;
+    private ProcessStages stage;
+	private MafiaCell current;
+    private MafiaCell next;
+    private Iterator<MafiaCell> childrenCurNodeIter;
+    private Iterator<MafiaCell> childrenSubNodeIter;
 
-	public MafiaCellIterator(MafiaCell treeNode) {
-		this.treeNode = treeNode;
-		this.doNext = ProcessStages.ProcessParent;
-		this.childrenCurNodeIter = treeNode.getSubordinates().iterator();
+    public MafiaCellIterator(MafiaCell start) {
+        this(start, true);
 	}
 
-	public MafiaCellIterator(MafiaCell treeNode, boolean onlySubordinates) {
-		this.treeNode = treeNode;
-		this.doNext = onlySubordinates ? ProcessStages.ProcessChildCurNode : ProcessStages.ProcessParent;
-		this.childrenCurNodeIter = treeNode.getSubordinates().iterator();
+    public MafiaCellIterator(MafiaCell start, boolean includeStartNode) {
+        this.stage = includeStartNode ? ProcessStages.PARENT : ProcessStages.CHILDREN_CURRENT_NODE;
+        this.current = start;
+		this.childrenCurNodeIter = current.getSubordinates().iterator();
 	}
-
-	private ProcessStages doNext;
-	private MafiaCell next;
-	private Iterator<MafiaCell> childrenCurNodeIter;
-	private Iterator<MafiaCell> childrenSubNodeIter;
 
 	@Override
 	public boolean hasNext() {
 
-		if (this.doNext == ProcessStages.ProcessParent) {
-			this.next = this.treeNode;
-			this.doNext = ProcessStages.ProcessChildCurNode;
+        if (stage == ProcessStages.PARENT) {
+            next = current;
+            stage = ProcessStages.CHILDREN_CURRENT_NODE;
 			return true;
 		}
 
-		if (this.doNext == ProcessStages.ProcessChildCurNode) {
+        if (stage == ProcessStages.CHILDREN_CURRENT_NODE) {
 			if (childrenCurNodeIter.hasNext()) {
 				MafiaCell childDirect = childrenCurNodeIter.next();
 				childrenSubNodeIter = childDirect.iterator();
-				this.doNext = ProcessStages.ProcessChildSubNode;
+                stage = ProcessStages.CHILDREN_SUB_NODE;
 				return hasNext();
-			}
-
-			else {
-				this.doNext = null;
+            } else {
+                stage = null;
 				return false;
 			}
 		}
 
-		if (this.doNext == ProcessStages.ProcessChildSubNode) {
+        if (stage == ProcessStages.CHILDREN_SUB_NODE) {
 			if (childrenSubNodeIter.hasNext()) {
-				this.next = childrenSubNodeIter.next();
+                next = childrenSubNodeIter.next();
 				return true;
 			} else {
-				this.next = null;
-				this.doNext = ProcessStages.ProcessChildCurNode;
+                next = null;
+                stage = ProcessStages.CHILDREN_CURRENT_NODE;
 				return hasNext();
 			}
 		}
@@ -69,7 +65,10 @@ public class MafiaCellIterator implements Iterator<MafiaCell> {
 
 	@Override
 	public MafiaCell next() {
-		return this.next;
+        if (next == null) {
+            throw new NoSuchElementException();
+        }
+        return next;
 	}
 
 	@Override

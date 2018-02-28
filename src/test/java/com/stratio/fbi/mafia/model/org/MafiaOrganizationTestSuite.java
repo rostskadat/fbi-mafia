@@ -9,7 +9,8 @@ import com.stratio.fbi.mafia.model.org.tree.TreeMafiaOrganizationTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ PathListMafiaOrganizationTest.class, RelationListMafiaOrganizationTest.class,
-        TreeMafiaOrganizationTest.class })
+        TreeMafiaOrganizationTest.class
+})
 public class MafiaOrganizationTestSuite {
 
 }

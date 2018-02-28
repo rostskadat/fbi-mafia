@@ -18,7 +18,7 @@ import com.stratio.fbi.mafia.config.JPAConfig;
 @Table(name = "mafiosos", schema = JPAConfig.SCHEMA)
 public class Mafioso implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue
@@ -33,6 +33,18 @@ public class Mafioso implements Serializable {
 	
     @Column
 	private Integer age;
+
+    public Mafioso() {
+        super();
+    }
+
+    public Mafioso(String id, String firstName, String lastName, Integer age) {
+        super();
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+    }
 
     public String getId() {
         return id;

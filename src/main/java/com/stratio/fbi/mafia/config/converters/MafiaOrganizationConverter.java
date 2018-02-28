@@ -23,7 +23,7 @@ public final class MafiaOrganizationConverter extends AbstractHttpMessageConvert
 
     @Override
     protected boolean supports(Class<?> classz) {
-        return MafiaOrganization.class.equals(classz);
+        return MafiaOrganization.class.isAssignableFrom(classz);
     }
 
     @Override

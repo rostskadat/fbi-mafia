@@ -2,13 +2,17 @@ package com.stratio.fbi.mafia.controller;
 
 import static java.lang.String.format;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,12 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.stratio.fbi.mafia.exception.ResourceNotFoundException;
 import com.stratio.fbi.mafia.managers.ICemeteryManager;
+import com.stratio.fbi.mafia.managers.ICosaNostraManager;
 import com.stratio.fbi.mafia.managers.IJailManager;
 import com.stratio.fbi.mafia.managers.IMafiosoManager;
 import com.stratio.fbi.mafia.model.Mafioso;
 
 @RestController
-@RequestMapping("/api/mafia/mafioso")
+@RequestMapping("/api/mafioso")
 public class MafiosoController {
 
 	private static final String PARAM_ID = "id";
@@ -39,6 +44,9 @@ public class MafiosoController {
     @Autowired
     private ICemeteryManager cemeteryManager;
 
+    @Autowired
+    private ICosaNostraManager cosaNostra;
+
 	@PutMapping
 	@ResponseBody
     public Mafioso addMafioso(@RequestBody Mafioso mafioso) {
@@ -50,68 +58,72 @@ public class MafiosoController {
 
 	@GetMapping("/{id}")
 	@ResponseBody
-    public Mafioso getMafioso(@Valid @PathParam(PARAM_ID) String id) {
-		if (StringUtils.isBlank(id)) {
-            throw new IllegalArgumentException(MSG_ID_NULL);
-		}
-        return mafiosoManager.get(id);
+    public Mafioso getMafioso(@Valid @PathVariable(PARAM_ID) String id) {
+        return checkValidMafioso(id);
 	}
 
 	@PostMapping("/{id}")
 	@ResponseBody
-    public Mafioso updateMafioso(@Valid @PathParam(PARAM_ID) String id) {
-		if (StringUtils.isBlank(id)) {
-            throw new IllegalArgumentException(MSG_ID_NULL);
-		}
-        Mafioso mafioso = mafiosoManager.get(id);
-        if (mafioso == null) {
-            throw new ResourceNotFoundException(format("No such Mafioso %s", id));
-        }
+    public Mafioso updateMafioso(@Valid @PathVariable(PARAM_ID) String id) {
+        Mafioso mafioso = checkValidMafioso(id);
         mafiosoManager.update(mafioso);
         return mafioso;
 	}
 
 	@DeleteMapping("/{id}")
 	@ResponseBody
-    public Mafioso deleteMafioso(@Valid @PathParam(PARAM_ID) String id) {
-		if (StringUtils.isBlank(id)) {
-            throw new IllegalArgumentException(MSG_ID_NULL);
-		}
-		Mafioso mafioso = mafiosoManager.get(id);
+    public Mafioso deleteMafioso(@Valid @PathVariable(PARAM_ID) String id) {
+        Mafioso mafioso = checkValidMafioso(id);
         mafiosoManager.delete(id);
         return mafioso;
 	}
 
+    @GetMapping("/{id}/subordinates")
+    @ResponseBody
+    public List<Mafioso> getSubordinates(@Valid @PathVariable(PARAM_ID) String id) {
+        Mafioso boss = checkValidMafioso(id);
+        List<Mafioso> subordinates = new ArrayList<>();
+        Iterator<Mafioso> i = cosaNostra.getOrganization().getSubordinates(boss);
+        while (i.hasNext()) {
+            subordinates.add(i.next());
+        }
+        return subordinates;
+    }
+
 	@PostMapping("/{id}/sendToJail")
 	@ResponseBody
-    public void sendToJail(@Valid @PathParam(PARAM_ID) String id) {
-		if (StringUtils.isBlank(id)) {
-            throw new IllegalArgumentException(MSG_ID_NULL);
-		}
-        jailManager.sendToJail(mafiosoManager.get(id));
+    public void sendToJail(@Valid @PathVariable(PARAM_ID) String id) {
+        Mafioso mafioso = checkValidMafioso(id);
+        cosaNostra.sendToJail(id);
+        jailManager.sendToJail(mafioso);
 	}
 
 	@PostMapping("/{id}/releaseFromJail")
 	@ResponseBody
-    public Mafioso releaseFromJail(@Valid @PathParam(PARAM_ID) String id) {
-		if (StringUtils.isBlank(id)) {
-            throw new IllegalArgumentException(MSG_ID_NULL);
-		}
-        Mafioso mafioso = mafiosoManager.get(id);
-        if (mafioso == null) {
-            throw new ResourceNotFoundException(format("No such Mafioso %s", id));
-        }
+    public Mafioso releaseFromJail(@Valid @PathVariable(PARAM_ID) String id) {
+        Mafioso mafioso = checkValidMafioso(id);
+        cosaNostra.releaseFromJail(id);
         jailManager.releaseFromJail(id);
         return mafioso;
 	}
 
 	@PostMapping("/{id}/sendToCemetery")
 	@ResponseBody
-    public void sendToCemetery(@Valid @PathParam(PARAM_ID) String id) {
-		if (StringUtils.isBlank(id)) {
-            throw new IllegalArgumentException(MSG_ID_NULL);
-		}
-        cemeteryManager.sendToCemetery(mafiosoManager.get(id));
+    public void sendToCemetery(@Valid @PathVariable(PARAM_ID) String id) {
+        Mafioso mafioso = checkValidMafioso(id);
+        cosaNostra.sendToCemetery(id);
+        cemeteryManager.sendToCemetery(mafioso);
 	}
+
+    private Mafioso checkValidMafioso(String id) {
+        if (StringUtils.isBlank(id)) {
+            throw new IllegalArgumentException(MSG_ID_NULL);
+        }
+        Mafioso mafioso = mafiosoManager.get(id);
+        if (mafioso == null) {
+            throw new ResourceNotFoundException(format("No such Mafioso %s", id));
+        }
+        return mafioso;
+    }
 
 }

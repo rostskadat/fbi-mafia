@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.stratio.fbi.mafia.model.Mafioso;
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 
@@ -23,7 +24,7 @@ import com.stratio.fbi.mafia.model.org.MafiaOrganization;
  * @author rostskadat
  *
  */
-public class RelationListMafiaOrganization implements MafiaOrganization {
+public class RelationMapMafiaOrganization implements MafiaOrganization {
 
 	private static final String ROOT_KEY = "-";
 
@@ -99,7 +100,7 @@ public class RelationListMafiaOrganization implements MafiaOrganization {
 				}
 			}
 		}
-		return subordinates.iterator();
+        return new ReadOnlyIterator(subordinates.iterator());
 	}
 
 	@Override
@@ -118,7 +119,7 @@ public class RelationListMafiaOrganization implements MafiaOrganization {
 	}
 
 	@Override
-	public void remove(Mafioso subordinate) {
+    public void removeFromOrganization(Mafioso subordinate) {
 		String previousRelation = format("/%s", subordinate.getId());
 		for (Map.Entry<String, Mafioso> entry : relations.entrySet()) {
 			if (StringUtils.endsWith(entry.getKey(), previousRelation)) {
@@ -133,37 +134,13 @@ public class RelationListMafiaOrganization implements MafiaOrganization {
 
 	@Override
 	public Iterator<Mafioso> iterator() {
-		return new RelationListIterator(relations);
-	}
-
-	private static class RelationListIterator implements Iterator<Mafioso> {
-
-		private Iterator<Mafioso> iterator;
-
-		public RelationListIterator(Map<String, Mafioso> relations) {
-			this.iterator = relations.values().iterator();
-		}
-
-		@Override
-		public boolean hasNext() {
-			return iterator.hasNext();
-		}
-
-		@Override
-		public Mafioso next() {
-			return iterator.next();
-		}
-
-		@Override
-		public void remove() {
-			iterator.remove();
-		}
+        return new ReadOnlyIterator(relations);
 	}
 
 	@Override
 	public String toString() {
 		try {
-			return new ObjectMapper().writeValueAsString(this);
+            return new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).writeValueAsString(relations);
 		} catch (JsonProcessingException e) {
 			return e.getMessage();
 		}
@@ -186,6 +163,7 @@ public class RelationListMafiaOrganization implements MafiaOrganization {
 			if (StringUtils.startsWith(entry.getKey(), previousRelation)) {
 				// Ok find out who is the oldest among the subordinate
 				if (entry.getValue().getAge() > oldestAge) {
+                    oldestAge = entry.getValue().getAge();
 					oldestIndex = entry.getKey();
 				}
 				relationsToChange.add(entry.getKey());

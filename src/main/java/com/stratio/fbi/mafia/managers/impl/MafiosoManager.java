@@ -42,7 +42,7 @@ public class MafiosoManager implements IMafiosoManager {
         if (mafiosoRepository.exists(id)) {
             return mafiosoRepository.findOne(id);
         }
-        throw new ResourceNotFoundException("'id' doesn't exists: " + id);
+        throw new ResourceNotFoundException("Mafioso doesn't exists " + id);
     }
 
     @Override

@@ -6,17 +6,19 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.stratio.fbi.mafia.model.Mafioso;
 
 /**
  * @see https://github.com/gt4dev/yet-another-tree-structure
  */
-@JsonIgnoreProperties("boss") // because of infinite loop while serializing
 public class MafiaCell implements Iterable<MafiaCell> {
 
 	private Mafioso mafioso;
-	private MafiaCell boss;
+
+    @JsonIgnore
+    private MafiaCell bossCell;
+
 	private List<MafiaCell> subordinates;
 
 	private List<MafiaCell> elementsIndex;
@@ -35,7 +37,7 @@ public class MafiaCell implements Iterable<MafiaCell> {
 	}
 
 	public boolean isRoot() {
-		return boss == null;
+		return bossCell == null;
 	}
 
 	public boolean isLeaf() {
@@ -44,26 +46,26 @@ public class MafiaCell implements Iterable<MafiaCell> {
 
 	public void addSubordinate(Mafioso subordinate) {
 		MafiaCell subordinateNode = new MafiaCell(subordinate);
-		subordinateNode.boss = this;
+		subordinateNode.bossCell = this;
 		this.subordinates.add(subordinateNode);
 		this.registerChildForSearch(subordinateNode);
 	}
 
 	public void setBoss(Mafioso boss) {
-		this.boss = new MafiaCell(boss);
+		this.bossCell = new MafiaCell(boss);
 	}
 
 	public int getLevel() {
 		if (this.isRoot())
 			return 0;
 		else
-			return boss.getLevel() + 1;
+			return bossCell.getLevel() + 1;
 	}
 
 	private void registerChildForSearch(MafiaCell node) {
 		elementsIndex.add(node);
-		if (boss != null) {
-			boss.registerChildForSearch(node);
+		if (bossCell != null) {
+			bossCell.registerChildForSearch(node);
 		}
 	}
 
@@ -95,11 +97,11 @@ public class MafiaCell implements Iterable<MafiaCell> {
 	}
 
 	public MafiaCell getBossCell() {
-		return boss;
+		return bossCell;
 	}
 
 	public void setBossCell(MafiaCell bossCell) {
-		this.boss = bossCell;
+		this.bossCell = bossCell;
 	}
 
 	public List<MafiaCell> getSubordinates() {

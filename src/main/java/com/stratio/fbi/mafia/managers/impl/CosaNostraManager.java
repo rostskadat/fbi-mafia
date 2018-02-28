@@ -1,13 +1,18 @@
 package com.stratio.fbi.mafia.managers.impl;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.stratio.fbi.mafia.managers.ICemeteryManager;
 import com.stratio.fbi.mafia.managers.ICosaNostraManager;
+import com.stratio.fbi.mafia.managers.IJailManager;
+import com.stratio.fbi.mafia.managers.IMafiosoManager;
 import com.stratio.fbi.mafia.model.Mafioso;
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 
@@ -19,20 +24,20 @@ import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 @Component
 public class CosaNostraManager implements ICosaNostraManager {
 
-    @Value("${capo.threshold}")
-    private Integer capoThreshold;
+    @Value("${watchThreshold}")
+    private Integer watchThreshold;
 
     @Value("${isSubordinateCountDeep:false}")
     private Boolean isDeep;
 
     @Autowired
-    MafiosoManager mafiosoManager;
+    IMafiosoManager mafiosoManager;
 
     @Autowired
-    CemeteryManager cemeteryManager;
+    ICemeteryManager cemeteryManager;
 
     @Autowired
-    JailManager jailManager;
+    IJailManager jailManager;
 
     MafiaOrganization organization;
 
@@ -78,6 +83,25 @@ public class CosaNostraManager implements ICosaNostraManager {
                 return;
             }
         }
+    }
+
+    @Override
+    public List<Mafioso> getListToWatch() {
+        List<Mafioso> listToWatch = new ArrayList<>();
+        Iterator<Mafioso> i = organization.iterator();
+        while (i.hasNext()) {
+            Mafioso mafioso = i.next();
+            int subordinatesCount = 0;
+            Iterator<Mafioso> j = organization.getSubordinates(mafioso);
+            while (j.hasNext()) {
+                j.next();
+                subordinatesCount++;
+            }
+            if (subordinatesCount >= watchThreshold) {
+                listToWatch.add(mafioso);
+            }
+        }
+        return listToWatch;
     }
 
 }

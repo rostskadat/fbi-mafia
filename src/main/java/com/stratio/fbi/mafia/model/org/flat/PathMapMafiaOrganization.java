@@ -3,7 +3,6 @@ package com.stratio.fbi.mafia.model.org.flat;
 import static java.lang.String.format;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.stratio.fbi.mafia.model.Mafioso;
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 
@@ -23,7 +23,7 @@ import com.stratio.fbi.mafia.model.org.MafiaOrganization;
  * @author rostskadat
  *
  */
-public class PathListMafiaOrganization implements MafiaOrganization {
+public class PathMapMafiaOrganization implements MafiaOrganization {
 
 	private static final String ROOT_KEY = "-";
 
@@ -43,23 +43,19 @@ public class PathListMafiaOrganization implements MafiaOrganization {
 
 	@Override
 	public void setCupula(Mafioso cupula) {
-		String path = format("%s/", ROOT_KEY);
-		for (Map.Entry<String, Mafioso> entry : paths.entrySet()) {
-			if (StringUtils.startsWith(entry.getKey(), path)) {
-				paths.remove(entry.getKey());
-				break;
-			}
-		}
+        Map.Entry<String, Mafioso> entry = getCupulaEntry();
+        if (entry != null) {
+            paths.remove(entry.getKey());
+        }
 		// Ok, let's add it at the head of the list...
 		paths.put(format("%s/%s", ROOT_KEY, cupula.getId()), cupula);
 	}
 
 	@Override
 	public Mafioso getCupula() {
-		for (Map.Entry<String, Mafioso> entry : paths.entrySet()) {
-			if (entry.getKey().split("/").length == 2) {
+        Map.Entry<String, Mafioso> entry = getCupulaEntry();
+        if (entry != null) {
 				return entry.getValue();
-			}
 		}
 		return null;
 	}
@@ -96,7 +92,7 @@ public class PathListMafiaOrganization implements MafiaOrganization {
 				}
 			}
 		}
-		return subordinates.iterator();
+        return new ReadOnlyIterator(subordinates.iterator());
 	}
 
 	@Override
@@ -118,12 +114,12 @@ public class PathListMafiaOrganization implements MafiaOrganization {
 	}
 
 	@Override
-	public void remove(Mafioso subordinate) {
+    public void removeFromOrganization(Mafioso subordinate) {
 		String previousRelation = format("/%s", subordinate.getId());
 		for (Map.Entry<String, Mafioso> entry : paths.entrySet()) {
 			if (StringUtils.endsWith(entry.getKey(), previousRelation)) {
-				String[] pathElements = entry.getKey().split("/");
-				String bossId = StringUtils.join(Arrays.copyOfRange(pathElements, 0, pathElements.length - 1));
+                String subordinateId = entry.getKey();
+                String bossId = StringUtils.substring(subordinateId, 0, subordinateId.lastIndexOf('/'));
 				paths.remove(entry.getKey());
 				promoteOldestSubordinateOf(bossId, subordinate);
 				return;
@@ -134,52 +130,38 @@ public class PathListMafiaOrganization implements MafiaOrganization {
 
 	@Override
 	public Iterator<Mafioso> iterator() {
-		return new PathListIterator(paths);
-	}
-
-	private static class PathListIterator implements Iterator<Mafioso> {
-
-		private Iterator<Mafioso> iterator;
-
-		public PathListIterator(Map<String, Mafioso> paths) {
-			this.iterator = paths.values().iterator();
-		}
-
-		@Override
-		public boolean hasNext() {
-			return iterator.hasNext();
-		}
-
-		@Override
-		public Mafioso next() {
-			return iterator.next();
-		}
-
-		@Override
-		public void remove() {
-			iterator.remove();
-		}
-
+        return new ReadOnlyIterator(paths);
 	}
 
 	@Override
 	public String toString() {
 		try {
-			return new ObjectMapper().writeValueAsString(this);
+            return new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).writeValueAsString(paths);
 		} catch (JsonProcessingException e) {
 			return e.getMessage();
 		}
 	}
 
+    private Map.Entry<String, Mafioso> getCupulaEntry() {
+        for (Map.Entry<String, Mafioso> entry : paths.entrySet()) {
+            if (entry.getKey().split("/").length == 2) {
+                return entry;
+            }
+        }
+        return null;
+
+    }
+
 	private void promoteOldestSubordinateOf(String bossId, Mafioso oldBoss) {
-		String previousRelation = format("%s/", oldBoss.getId());
+        String previousRelation = format("/%s/", oldBoss.getId());
 		int oldestAge = 0;
 		String oldestIndex = "-/";
 		List<String> relationsToChange = new ArrayList<>();
 		for (Map.Entry<String, Mafioso> entry : paths.entrySet()) {
-			if (StringUtils.startsWith(entry.getKey(), previousRelation)) {
+            if (StringUtils.contains(entry.getKey(), previousRelation)) {
 				// Ok find out who is the oldest among the subordinate
 				if (entry.getValue().getAge() > oldestAge) {
+                    oldestAge = entry.getValue().getAge();
 					oldestIndex = entry.getKey();
 				}
 				relationsToChange.add(entry.getKey());
@@ -195,7 +177,7 @@ public class PathListMafiaOrganization implements MafiaOrganization {
 				if (StringUtils.equals(relationToChange, oldestIndex)) {
 					relation = format("%s/%s", bossId, promotedBossId);
 				} else {
-					relation = format("%s/%s", promotedBossId, mafioso.getId());
+                    relation = format("%s/%s/%s", bossId, promotedBossId, mafioso.getId());
 				}
 				paths.put(relation, mafioso);
 			}

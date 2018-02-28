@@ -1,8 +1,8 @@
 package com.stratio.fbi.mafia.model.org;
 
 import com.stratio.fbi.mafia.model.Mafioso;
-import com.stratio.fbi.mafia.model.org.flat.PathListMafiaOrganization;
-import com.stratio.fbi.mafia.model.org.flat.RelationListMafiaOrganization;
+import com.stratio.fbi.mafia.model.org.flat.PathMapMafiaOrganization;
+import com.stratio.fbi.mafia.model.org.flat.RelationMapMafiaOrganization;
 import com.stratio.fbi.mafia.model.org.tree.TreeMafiaOrganization;
 
 /**
@@ -34,7 +34,7 @@ public class OrganizationFactory {
     }
 
     /**
-     * Create a {@link PathListMafiaOrganization} whose cupula is formed by the {@code godfather}
+     * Create a {@link PathMapMafiaOrganization} whose cupula is formed by the {@code godfather}
      * 
      * @param godfather
      *            the Boss
@@ -43,14 +43,14 @@ public class OrganizationFactory {
      * @return the {@link MafiaOrganization}
      */
     public static MafiaOrganization createPathList(Mafioso godfather, boolean isDeep) {
-        MafiaOrganization organization = new PathListMafiaOrganization();
+        MafiaOrganization organization = new PathMapMafiaOrganization();
         organization.setCupula(godfather);
         organization.setDeep(isDeep);
         return organization;
     }
 
     /**
-     * Create a {@link RelationListMafiaOrganization} whose cupula is formed by the {@code godfather}
+     * Create a {@link RelationMapMafiaOrganization} whose cupula is formed by the {@code godfather}
      * 
      * @param godfather
      *            the Boss
@@ -59,7 +59,7 @@ public class OrganizationFactory {
      * @return the {@link MafiaOrganization}
      */
     public static MafiaOrganization createRelationList(Mafioso godfather, boolean isDeep) {
-        MafiaOrganization organization = new RelationListMafiaOrganization();
+        MafiaOrganization organization = new RelationMapMafiaOrganization();
         organization.setCupula(godfather);
         organization.setDeep(isDeep);
         return organization;
