@@ -23,12 +23,10 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 
 	private static final String URL_ID = MAFIOSO_API_URI + "/{id}";
 	private static final String URL_ADD = MAFIOSO_API_URI;
+	private static final String URL_SUBORDINATES = MAFIOSO_API_URI + "/{id}/subordinates";
 
 	@Autowired
 	private CosaNostraFactory factory;
-
-	// @MockBean
-	// private MafiosoController service;
 
 	@Autowired
 	private MafiosoRepository mafiosoRepository;
@@ -37,14 +35,17 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 
 	private Mafioso alCapone;
 	private Mafioso newRecruit;
+	private Mafioso deletedRecruit;
+	private Mafioso addedRecruit;
 
 	@Before
 	public void beforeMafiosoControllerTest() {
 		mafiosoRepository.deleteAllInBatch();
 		alCapone = mafiosoRepository.save(factory.createGodfather());
 		newRecruit = mafiosoRepository.save(factory.createRandomMafioso());
-		mafiosos.addAll(Arrays.asList(new Mafioso[] { alCapone, newRecruit }));
-
+		deletedRecruit = mafiosoRepository.save(factory.createRandomMafioso());
+		addedRecruit = factory.createRandomMafioso();
+		mafiosos.addAll(Arrays.asList(new Mafioso[] { alCapone, newRecruit, deletedRecruit, addedRecruit }));
 	}
 
 	@Test
@@ -71,13 +72,59 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 	@Test
 	public void updateMafioso() throws Exception {
 		newRecruit.setFirstName("UPDATED_FIRST_NAME");
-		MockHttpServletResponse response = perform(defaultPost(URL_ID, newRecruit.getId()));
+		MockHttpServletResponse response = perform(defaultPost(URL_ID, newRecruit.getId()).content(toJSONString(newRecruit)));
 		assertEquals(response.getErrorMessage(), 200, response.getStatus());
 		String contentAsString = response.getContentAsString();
 		assertTrue(StringUtils.isNotBlank(contentAsString));
 		Mafioso mafioso = checkMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
 		assertTrue(StringUtils.equals(mafioso.getFirstName(), "UPDATED_FIRST_NAME"));
 	}
+
+	@Test
+	public void deleteMafioso() throws Exception {
+		MockHttpServletResponse response = perform(defaultDelete(URL_ID, deletedRecruit.getId()));
+		assertEquals(response.getErrorMessage(), 200, response.getStatus());
+		String contentAsString = response.getContentAsString();
+		assertTrue(StringUtils.isNotBlank(contentAsString));
+		Mafioso mafioso = checkMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
+		assertEquals(mafioso.getFirstName(), deletedRecruit.getFirstName());
+		assertEquals(mafioso.getLastName(), deletedRecruit.getLastName());
+		assertEquals(mafioso.getAge(), deletedRecruit.getAge());
+		response = perform(defaultGet(URL_ID, deletedRecruit.getId()));
+		assertEquals(response.getErrorMessage(), 404, response.getStatus());
+	}
+
+	@Test
+	public void addMafioso() throws Exception {
+		MockHttpServletResponse response = perform(defaultPut(URL_ADD).content(toJSONString(addedRecruit)));
+		assertEquals(response.getErrorMessage(), 200, response.getStatus());
+		String contentAsString = response.getContentAsString();
+		assertTrue(StringUtils.isNotBlank(contentAsString));
+		Mafioso mafioso = checkMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
+		assertEquals(mafioso.getFirstName(), addedRecruit.getFirstName());
+		assertEquals(mafioso.getLastName(), addedRecruit.getLastName());
+		assertEquals(mafioso.getAge(), addedRecruit.getAge());
+		response = perform(defaultGet(URL_ID, mafioso.getId()));
+		assertEquals(response.getErrorMessage(), 200, response.getStatus());
+		contentAsString = response.getContentAsString();
+		assertTrue(StringUtils.isNotBlank(contentAsString));
+		mafioso = checkMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
+		assertEquals(mafioso.getFirstName(), addedRecruit.getFirstName());
+		assertEquals(mafioso.getLastName(), addedRecruit.getLastName());
+		assertEquals(mafioso.getAge(), addedRecruit.getAge());
+	}
+	
+	@Test
+	@SuppressWarnings("unchecked")
+	public void getSubordinates() throws Exception {
+		MockHttpServletResponse response = perform(defaultGet(URL_SUBORDINATES, alCapone.getId()));
+		assertEquals(response.getErrorMessage(), 200, response.getStatus());
+		String contentAsString = response.getContentAsString();
+		assertTrue(StringUtils.isNotBlank(contentAsString));
+		List<Mafioso> mafiosos = new ObjectMapper().readValue(contentAsString, List.class);
+		assertNotNull(mafiosos);
+	}
+	
 
 	public static Mafioso checkMafioso(Mafioso mafioso) {
 		assertNotNull("Expected a non null mafioso", mafioso);
