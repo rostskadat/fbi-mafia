@@ -7,6 +7,7 @@ import static com.stratio.fbi.mafia.model.org.OrganizationFactory.createTree;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.PostConstruct;
@@ -78,7 +79,7 @@ public class CosaNostraFactory {
 	public Mafioso createRandomMafioso() {
 		ThreadLocalRandom random = ThreadLocalRandom.current();
 		Mafioso mafioso = new Mafioso();
-		mafioso.setId(null);
+		mafioso.setId(UUID.randomUUID().toString());
 		mafioso.setFirstName(firstNames.get(random.nextInt(0, firstNames.size())));
 		mafioso.setLastName(lastNames.get(random.nextInt(0, lastNames.size())));
 		mafioso.setAge(random.nextInt(18, 100));

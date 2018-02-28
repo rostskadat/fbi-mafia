@@ -33,97 +33,98 @@ public class MafiosoController {
 
 	private static final String PARAM_ID = "id";
 
-    private static final String MSG_ID_NULL = "Id can't be null";
+	private static final String MSG_ID_NULL = "Id can't be null";
 
-    @Autowired
-    private IMafiosoManager mafiosoManager;
+	@Autowired
+	private IMafiosoManager mafiosoManager;
 
-    @Autowired
-    private IJailManager jailManager;
+	@Autowired
+	private IJailManager jailManager;
 
-    @Autowired
-    private ICemeteryManager cemeteryManager;
+	@Autowired
+	private ICemeteryManager cemeteryManager;
 
-    @Autowired
-    private ICosaNostraManager cosaNostra;
+	@Autowired
+	private ICosaNostraManager cosaNostra;
 
 	@PutMapping
 	@ResponseBody
-    public Mafioso addMafioso(@RequestBody Mafioso mafioso) {
+	public Mafioso addMafioso(@RequestBody Mafioso mafioso) {
 		if (mafioso == null) {
 			throw new IllegalArgumentException("Mafioso can't be null");
 		}
-        return mafiosoManager.add(mafioso);
+		return mafiosoManager.add(mafioso);
 	}
 
 	@GetMapping("/{id}")
 	@ResponseBody
-    public Mafioso getMafioso(@Valid @PathVariable(PARAM_ID) String id) {
-        return checkValidMafioso(id);
+	public Mafioso getMafioso(@Valid @PathVariable(PARAM_ID) String id) {
+		return checkValidMafioso(id);
 	}
 
 	@PostMapping("/{id}")
 	@ResponseBody
-    public Mafioso updateMafioso(@Valid @PathVariable(PARAM_ID) String id) {
-        Mafioso mafioso = checkValidMafioso(id);
-        mafiosoManager.update(mafioso);
-        return mafioso;
+	public Mafioso updateMafioso(@Valid @PathVariable(PARAM_ID) String id, @Valid @RequestBody Mafioso newMafioso) {
+		checkValidMafioso(id);
+		newMafioso.setId(id);
+		mafiosoManager.update(newMafioso);
+		return newMafioso;
 	}
 
 	@DeleteMapping("/{id}")
 	@ResponseBody
-    public Mafioso deleteMafioso(@Valid @PathVariable(PARAM_ID) String id) {
-        Mafioso mafioso = checkValidMafioso(id);
-        mafiosoManager.delete(id);
-        return mafioso;
+	public Mafioso deleteMafioso(@Valid @PathVariable(PARAM_ID) String id) {
+		Mafioso mafioso = checkValidMafioso(id);
+		mafiosoManager.delete(id);
+		return mafioso;
 	}
 
-    @GetMapping("/{id}/subordinates")
-    @ResponseBody
-    public List<Mafioso> getSubordinates(@Valid @PathVariable(PARAM_ID) String id) {
-        Mafioso boss = checkValidMafioso(id);
-        List<Mafioso> subordinates = new ArrayList<>();
-        Iterator<Mafioso> i = cosaNostra.getOrganization().getSubordinates(boss);
-        while (i.hasNext()) {
-            subordinates.add(i.next());
-        }
-        return subordinates;
-    }
+	@GetMapping("/{id}/subordinates")
+	@ResponseBody
+	public List<Mafioso> getSubordinates(@Valid @PathVariable(PARAM_ID) String id) {
+		Mafioso boss = checkValidMafioso(id);
+		List<Mafioso> subordinates = new ArrayList<>();
+		Iterator<Mafioso> i = cosaNostra.getOrganization().getSubordinates(boss);
+		while (i.hasNext()) {
+			subordinates.add(i.next());
+		}
+		return subordinates;
+	}
 
 	@PostMapping("/{id}/sendToJail")
 	@ResponseBody
-    public void sendToJail(@Valid @PathVariable(PARAM_ID) String id) {
-        Mafioso mafioso = checkValidMafioso(id);
-        cosaNostra.sendToJail(id);
-        jailManager.sendToJail(mafioso);
+	public void sendToJail(@Valid @PathVariable(PARAM_ID) String id) {
+		Mafioso mafioso = checkValidMafioso(id);
+		cosaNostra.sendToJail(id);
+		jailManager.sendToJail(mafioso);
 	}
 
 	@PostMapping("/{id}/releaseFromJail")
 	@ResponseBody
-    public Mafioso releaseFromJail(@Valid @PathVariable(PARAM_ID) String id) {
-        Mafioso mafioso = checkValidMafioso(id);
-        cosaNostra.releaseFromJail(id);
-        jailManager.releaseFromJail(id);
-        return mafioso;
+	public Mafioso releaseFromJail(@Valid @PathVariable(PARAM_ID) String id) {
+		Mafioso mafioso = checkValidMafioso(id);
+		cosaNostra.releaseFromJail(id);
+		jailManager.releaseFromJail(id);
+		return mafioso;
 	}
 
 	@PostMapping("/{id}/sendToCemetery")
 	@ResponseBody
-    public void sendToCemetery(@Valid @PathVariable(PARAM_ID) String id) {
-        Mafioso mafioso = checkValidMafioso(id);
-        cosaNostra.sendToCemetery(id);
-        cemeteryManager.sendToCemetery(mafioso);
+	public void sendToCemetery(@Valid @PathVariable(PARAM_ID) String id) {
+		Mafioso mafioso = checkValidMafioso(id);
+		cosaNostra.sendToCemetery(id);
+		cemeteryManager.sendToCemetery(mafioso);
 	}
 
-    private Mafioso checkValidMafioso(String id) {
-        if (StringUtils.isBlank(id)) {
-            throw new IllegalArgumentException(MSG_ID_NULL);
-        }
-        Mafioso mafioso = mafiosoManager.get(id);
-        if (mafioso == null) {
-            throw new ResourceNotFoundException(format("No such Mafioso %s", id));
-        }
-        return mafioso;
-    }
+	private Mafioso checkValidMafioso(String id) {
+		if (StringUtils.isBlank(id)) {
+			throw new IllegalArgumentException(MSG_ID_NULL);
+		}
+		Mafioso mafioso = mafiosoManager.get(id);
+		if (mafioso == null) {
+			throw new ResourceNotFoundException(format("No such Mafioso %s", id));
+		}
+		return mafioso;
+	}
 
 }

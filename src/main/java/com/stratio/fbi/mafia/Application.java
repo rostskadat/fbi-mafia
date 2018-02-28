@@ -2,8 +2,6 @@ package com.stratio.fbi.mafia;
 
 import static java.lang.String.format;
 
-import java.util.Arrays;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -18,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @SpringBootApplication
 public class Application {
 
-    private static final Log LOG = LogFactory.getLog(Application.class);
+	private static final Log LOG = LogFactory.getLog(Application.class);
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -30,16 +28,7 @@ public class Application {
 
 			@Override
 			public void run(String... arg0) throws Exception {
-                // Log log = LogFactory.getLog(Application.class);
-                System.out.println(format("Starting %s. Please standby...", Application.class.getName()));
-                if (true/* LOG.isDebugEnabled() */) {
-                    System.out.println("Let's inspect the beans provided by Spring Boot:");
-					String[] beanNames = ctx.getBeanDefinitionNames();
-					Arrays.sort(beanNames);
-					for (String beanName : beanNames) {
-                        System.out.println(beanName);
-					}
-				}
+				LOG.info(format("Starting %s. Please standby...", Application.class.getName()));
 			}
 		};
 	}
