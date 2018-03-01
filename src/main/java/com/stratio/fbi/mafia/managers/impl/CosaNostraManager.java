@@ -3,9 +3,11 @@ package com.stratio.fbi.mafia.managers.impl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -20,6 +22,7 @@ import com.stratio.fbi.mafia.managers.IJailManager;
 import com.stratio.fbi.mafia.managers.IMafiosoManager;
 import com.stratio.fbi.mafia.model.Mafioso;
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
+import com.stratio.fbi.mafia.model.org.MafiosoPosition;
 
 /**
  * 
@@ -93,9 +96,8 @@ public class CosaNostraManager implements ICosaNostraManager {
     public void sendToJail(String id) {
         if (mafiosoManager.exists(id)) {
             Mafioso mafioso = mafiosoManager.get(id);
-            jailManager.sendToJail(mafioso);
+            jailManager.sendToJail(organization.getMafiosoPosition(mafioso));
             organization.removeFromOrganization(mafioso);
-
         } else {
             throw new ResourceNotFoundException("'id' doesn't exists: " + id);
         }
@@ -103,12 +105,24 @@ public class CosaNostraManager implements ICosaNostraManager {
 
     @Override
     public void releaseFromJail(String id) {
-        Mafioso mafioso = jailManager.releaseFromJail(id);
-        // TODO: reshuflle subordinates
+        if (!jailManager.exists(id)) {
+            throw new ResourceNotFoundException("'id' doesn't exists: " + id);
+        }
+		MafiosoPosition position = jailManager.releaseFromJail(id);
+		Mafioso boss = StringUtils.isNotBlank(position.getBossId()) ? mafiosoManager.get(position.getBossId()) : null;
+		Mafioso mafioso = mafiosoManager.get(position.getMafiosoId());
+		final List<Mafioso> directSubordinates = new ArrayList<>();
+		position.getDirectSubordinateIds().forEach(new Consumer<String>() {
+			@Override
+			public void accept(String t) {
+				directSubordinates.add(mafiosoManager.get(t));
+			}
+		});
+		organization.reinstateMafioso(boss, mafioso, directSubordinates);
     }
 
     @Override
-    public List<Mafioso> getListToWatch() {
+    public List<Mafioso> getWatchList() {
         List<Mafioso> listToWatch = new ArrayList<>();
         Iterator<Mafioso> i = organization.iterator();
         while (i.hasNext()) {

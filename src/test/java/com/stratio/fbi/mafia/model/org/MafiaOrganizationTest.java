@@ -162,22 +162,22 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
         MafiosoPosition position = organization.getMafiosoPosition(expectedMafioso);
         assertNotNull(position);
         if (expectedBoss == null) {
-            assertNull(position.getBoss());
+            assertNull(position.getBossId());
         } else {
-            assertNotNull(position.getBoss());
-            assertMafiosoEquals(position.getBoss(), expectedBoss);
+            assertNotNull(position.getBossId());
+            assertEquals(position.getBossId(), expectedBoss.getId());
         }
-        assertNotNull(position.getMafioso());
-        assertMafiosoEquals(position.getMafioso(), expectedMafioso);
+        assertNotNull(position.getMafiosoId());
+        assertEquals(position.getMafiosoId(), expectedMafioso.getId());
 
-        List<Mafioso> subordinates = position.getDirectSubordinates();
-        assertNotNull(subordinates);
+        List<String> subordinateIds = position.getDirectSubordinateIds();
+        assertNotNull(subordinateIds);
         assertTrue(String.format("The subordinate list is incorrect expected %d <-> got %d", expectedSubordinateSize,
-                subordinates.size()), expectedSubordinateSize == subordinates.size());
+        		subordinateIds.size()), expectedSubordinateSize == subordinateIds.size());
         if (expectedSubordinateSize != 0) {
             boolean seenSubordinate = false;
-            for (Mafioso subordinate : subordinates) {
-                if (StringUtils.equals(subordinate.getId(), expectedSubordinate.getId())) {
+            for (String subordinateId : subordinateIds) {
+                if (StringUtils.equals(subordinateId, expectedSubordinate.getId())) {
                     seenSubordinate = true;
                 }
             }

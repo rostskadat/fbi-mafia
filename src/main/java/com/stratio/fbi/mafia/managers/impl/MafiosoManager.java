@@ -47,7 +47,10 @@ public class MafiosoManager implements IMafiosoManager {
 
     @Override
     public boolean exists(String id) {
-        return mafiosoRepository.exists(id);
+    	if (mafiosoRepository.exists(id)) {
+            return true;
+        }
+        return false;
     }
 
     @Override

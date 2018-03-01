@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.stratio.fbi.mafia.exception.ResourceNotFoundException;
 import com.stratio.fbi.mafia.managers.ICosaNostraManager;
-import com.stratio.fbi.mafia.managers.IJailManager;
 import com.stratio.fbi.mafia.managers.IMafiosoManager;
 import com.stratio.fbi.mafia.model.Mafioso;
 
@@ -36,9 +35,6 @@ public class MafiosoController {
 
 	@Autowired
 	private IMafiosoManager mafiosoManager;
-
-	@Autowired
-	private IJailManager jailManager;
 
 	@Autowired
 	private ICosaNostraManager cosaNostra;
@@ -85,23 +81,6 @@ public class MafiosoController {
 			subordinates.add(i.next());
 		}
 		return subordinates;
-	}
-
-	@PostMapping("/{id}/sendToJail")
-	@ResponseBody
-	public void sendToJail(@Valid @PathVariable(PARAM_ID) String id) {
-		Mafioso mafioso = checkValidMafioso(id);
-		cosaNostra.sendToJail(id);
-		jailManager.sendToJail(mafioso);
-	}
-
-	@PostMapping("/{id}/releaseFromJail")
-	@ResponseBody
-	public Mafioso releaseFromJail(@Valid @PathVariable(PARAM_ID) String id) {
-		Mafioso mafioso = checkValidMafioso(id);
-		cosaNostra.releaseFromJail(id);
-		jailManager.releaseFromJail(id);
-		return mafioso;
 	}
 
 	private Mafioso checkValidMafioso(String id) {

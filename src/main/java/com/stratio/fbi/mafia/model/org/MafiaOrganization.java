@@ -1,6 +1,7 @@
 package com.stratio.fbi.mafia.model.org;
 
 import java.util.Iterator;
+import java.util.List;
 
 import com.stratio.fbi.mafia.model.Mafioso;
 
@@ -61,7 +62,7 @@ public interface MafiaOrganization {
      * 
      * @param position
      */
-    void reinstateMafioso(MafiosoPosition position);
+    void reinstateMafioso(Mafioso boss, Mafioso mafioso, List<Mafioso> directSubordinates);
 
     /**
      * This method returns an {@link Iterator} on the list of subordinate for that {@code boss}. <br/>

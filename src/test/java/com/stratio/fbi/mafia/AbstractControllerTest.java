@@ -31,14 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @TestPropertySource(locations = "classpath:randomCosaNostra.properties")
-
-// @WebAppConfiguration
-// @TestExecutionListeners(listeners = { ServletTestExecutionListener.class,
-// DependencyInjectionTestExecutionListener.class })
 public abstract class AbstractControllerTest extends AbstractUnitTest {
-
-    // @Autowired
-    // protected GenericApplicationContext appContext;
 
     @Autowired
     protected WebApplicationContext wac;

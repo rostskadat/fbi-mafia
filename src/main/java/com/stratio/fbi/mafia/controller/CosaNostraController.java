@@ -3,12 +3,14 @@ package com.stratio.fbi.mafia.controller;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +26,8 @@ public class CosaNostraController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CosaNostraController.class);
 
+	private static final String PARAM_ID = "id";
+
     @Autowired
     private ICosaNostraManager cosaNostra;
 
@@ -33,7 +37,7 @@ public class CosaNostraController {
     }
 
 
-    @GetMapping(value = "/getOrganization", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/getOrganization")
 	@ResponseBody
     public MafiaOrganization getOrganization() {
         return cosaNostra.getOrganization();
@@ -45,9 +49,22 @@ public class CosaNostraController {
 	 * 
 	 * @return
 	 */
-    @GetMapping(value = "/getListToWatch", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/getWatchList")
 	@ResponseBody
-    public List<Mafioso> getListToWatch() {
-        return cosaNostra.getListToWatch();
+    public List<Mafioso> getWatchList() {
+        return cosaNostra.getWatchList();
 	}
+    
+	@PostMapping("/sendToJail/{id}")
+	@ResponseBody
+	public void sendToJail(@Valid @PathVariable(PARAM_ID) String id) {
+		cosaNostra.sendToJail(id);
+	}
+
+	@PostMapping("/releaseFromJail/{id}")
+	@ResponseBody
+	public void releaseFromJail(@Valid @PathVariable(PARAM_ID) String id) {
+		cosaNostra.releaseFromJail(id);
+	}
+
 }

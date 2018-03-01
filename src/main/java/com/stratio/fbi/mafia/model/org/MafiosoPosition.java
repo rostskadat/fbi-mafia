@@ -1,9 +1,20 @@
 package com.stratio.fbi.mafia.model.org;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.stratio.fbi.mafia.model.Mafioso;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.stratio.fbi.mafia.config.JPAConfig;
 
 /**
  * 
@@ -11,49 +22,65 @@ import com.stratio.fbi.mafia.model.Mafioso;
  * @author rostskadat
  *
  */
+@Entity
+@Table(name = "jail_positions", schema = JPAConfig.SCHEMA)
 public class MafiosoPosition implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Mafioso boss;
+    @Id
+    @Column
+    private String mafiosoId;
 
-    private Mafioso mafioso;
+    @Column
+    private String bossId;
 
-    private List<Mafioso> directSubordinates;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> directSubordinateIds = new ArrayList<>();
 
     public MafiosoPosition() {
         super();
     }
 
-    public MafiosoPosition(Mafioso boss, Mafioso mafioso, List<Mafioso> subordinates) {
+    public MafiosoPosition(String bossId, String mafiosoId, List<String> directSubordinateIds) {
         super();
-        this.boss = boss;
-        this.mafioso = mafioso;
-        this.directSubordinates = subordinates;
+        this.bossId = bossId;
+        this.mafiosoId = mafiosoId;
+        this.directSubordinateIds.addAll(directSubordinateIds);
     }
 
-    public Mafioso getBoss() {
-        return boss;
+    public String getBossId() {
+        return bossId;
     }
 
-    public void setBoss(Mafioso boss) {
-        this.boss = boss;
+    public void setBossId(String bossId) {
+        this.bossId = bossId;
     }
 
-    public Mafioso getMafioso() {
-        return mafioso;
+    public String getMafiosoId() {
+        return mafiosoId;
     }
 
-    public void setMafioso(Mafioso mafioso) {
-        this.mafioso = mafioso;
+    public void setMafiosoId(String mafiosoId) {
+        this.mafiosoId = mafiosoId;
     }
 
-    public List<Mafioso> getDirectSubordinates() {
-        return directSubordinates;
+    public List<String> getDirectSubordinateIds() {
+        return directSubordinateIds;
     }
 
-    public void setDirectSubordinates(List<Mafioso> directSubordinates) {
-        this.directSubordinates = directSubordinates;
+    public void setDirectSubordinateIds(List<String> directSubordinateIds) {
+        this.directSubordinateIds = directSubordinateIds;
     }
+    
+	@Override
+	public String toString() {
+		try {
+            return new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+                    .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS).writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			return e.getMessage();
+		}
+	}
 
 }

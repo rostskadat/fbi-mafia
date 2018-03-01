@@ -11,7 +11,7 @@ public interface ICosaNostraManager {
 
 	MafiaOrganization getOrganization();
 
-    List<Mafioso> getListToWatch();
+    List<Mafioso> getWatchList();
 
 	void sendToJail(String id);
 

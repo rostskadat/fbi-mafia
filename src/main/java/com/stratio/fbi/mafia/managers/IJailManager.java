@@ -1,11 +1,15 @@
 package com.stratio.fbi.mafia.managers;
 
-import com.stratio.fbi.mafia.model.Mafioso;
+import javax.validation.constraints.NotNull;
+
+import com.stratio.fbi.mafia.model.org.MafiosoPosition;
 
 public interface IJailManager {
 
-    void sendToJail(Mafioso mafioso);
+    boolean exists(@NotNull String id);
 
-    Mafioso releaseFromJail(String id);
+    void sendToJail(MafiosoPosition position);
+
+    MafiosoPosition releaseFromJail(String id);
 
 }

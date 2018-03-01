@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.stratio.fbi.mafia.exception.ResourceNotFoundException;
 import com.stratio.fbi.mafia.jpa.JailRepository;
 import com.stratio.fbi.mafia.managers.IJailManager;
-import com.stratio.fbi.mafia.model.Mafioso;
+import com.stratio.fbi.mafia.model.org.MafiosoPosition;
 
 @Component
 public class JailManager implements IJailManager {
@@ -18,16 +18,21 @@ public class JailManager implements IJailManager {
     }
 
     @Override
-    public void sendToJail(Mafioso mafioso) {
-        jailRepository.save(mafioso);
+    public boolean exists(String id) {
+        return jailRepository.exists(id);
     }
 
     @Override
-    public Mafioso releaseFromJail(String id) {
+    public void sendToJail(MafiosoPosition position) {
+        jailRepository.save(position);
+    }
+
+    @Override
+    public MafiosoPosition releaseFromJail(String id) {
         if (jailRepository.exists(id)) {
-            Mafioso mafioso = jailRepository.getOne(id);
+        		MafiosoPosition position = jailRepository.getOne(id);
             jailRepository.delete(id);
-            return mafioso;
+            return position;
         }
         throw new ResourceNotFoundException("'id' doesn't exists: " + id);
     }

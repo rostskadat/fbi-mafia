@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -113,11 +114,20 @@ public class RelationMapMafiaOrganization implements MafiaOrganization {
 
     @Override
     public MafiosoPosition getMafiosoPosition(Mafioso mafioso) {
-        return new MafiosoPosition(getBoss(mafioso), mafioso, getSubordinates(mafioso, false));
+        Mafioso boss = getBoss(mafioso);
+        String bossId = boss != null ? boss.getId() : null;
+        final List<String> ids = new ArrayList<>();
+        getSubordinates(mafioso, false).forEach(new Consumer<Mafioso>() {
+			@Override
+			public void accept(Mafioso t) {
+				ids.add(t.getId());
+			}
+        });
+        return new MafiosoPosition(bossId, mafioso.getId(), ids);
     }
 
     @Override
-    public void reinstateMafioso(MafiosoPosition position) {
+    public void reinstateMafioso(Mafioso boss, Mafioso mafioso, List<Mafioso> directSubordinates) {
         throw new UnsupportedOperationException();
     }
 

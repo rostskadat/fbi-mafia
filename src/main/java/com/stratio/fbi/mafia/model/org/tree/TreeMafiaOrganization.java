@@ -74,19 +74,17 @@ public class TreeMafiaOrganization implements MafiaOrganization {
 	@Override
     public MafiosoPosition getMafiosoPosition(Mafioso mafioso) {
         Mafioso boss = getBoss(mafioso);
-        List<Mafioso> subordinates = new ArrayList<>();
+        String bossId = boss != null ? boss.getId() : null;
+        List<String> subordinateIds = new ArrayList<>();
         Iterator<Mafioso> i = getSubordinates(mafioso, false);
         while (i.hasNext()) {
-            subordinates.add(i.next());
+        		subordinateIds.add(i.next().getId());
         }
-        return new MafiosoPosition(boss, mafioso, subordinates);
+        return new MafiosoPosition(bossId, mafioso.getId(), subordinateIds);
     }
 
     @Override
-    public void reinstateMafioso(MafiosoPosition position) {
-        Mafioso boss = position.getBoss();
-        Mafioso mafioso = position.getMafioso();
-        List<Mafioso> subordinates = position.getDirectSubordinates();
+    public void reinstateMafioso(Mafioso boss, Mafioso mafioso, List<Mafioso> directSubordinates) {
         if (boss != null) {
             MafiaCell oldBossCell = cupula.findMafiaCell(boss);
             MafiaCell newBossCell = new MafiaCell(mafioso);
@@ -161,7 +159,11 @@ public class TreeMafiaOrganization implements MafiaOrganization {
 	}
 
     private Iterator<Mafioso> getSubordinates(Mafioso mafioso, boolean goDeep) {
-        return new TreeIterator(new MafiaCellIterator(cupula.findMafiaCell(mafioso), false, goDeep));
+    		MafiaCell mafiaCell = cupula.findMafiaCell(mafioso);
+    		if (mafiaCell == null) {
+    			throw new IllegalArgumentException(format("Mafios %s does not belong to the organization", mafioso));
+    		}
+        return new TreeIterator(new MafiaCellIterator(mafiaCell, false, goDeep));
     }
 
     private void promoteOldestSubordinateOf(MafiaCell bossCell, List<MafiaCell> siblings) {
