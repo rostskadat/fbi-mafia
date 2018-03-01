@@ -82,23 +82,7 @@ public class PathMapMafiaOrganization implements MafiaOrganization {
 
 	@Override
 	public Iterator<Mafioso> getSubordinates(Mafioso mafioso) {
-		// a subordinate is a Mafioso whosepath is deeper that the current
-		// mafioso.
-		List<Mafioso> subordinates = new ArrayList<>();
-		String subordinateSuffix = "/" + mafioso.getId() + "/";
-		for (Map.Entry<String, Mafioso> entry : paths.entrySet()) {
-			if (StringUtils.contains(entry.getKey(), subordinateSuffix)) {
-				if (!isDeepCount()) {
-					String path = entry.getKey();
-					if (!path.substring(path.lastIndexOf(subordinateSuffix)).contains("/")) {
-						subordinates.add(entry.getValue());
-					}
-				} else {
-					subordinates.add(entry.getValue());
-				}
-			}
-		}
-        return new ReadOnlyIterator(subordinates.iterator());
+        return new ReadOnlyIterator(getSubordinates(mafioso, isDeepCount()).iterator());
 	}
 
 	@Override
@@ -121,14 +105,7 @@ public class PathMapMafiaOrganization implements MafiaOrganization {
 
     @Override
     public MafiosoPosition getMafiosoPosition(Mafioso mafioso) {
-        Mafioso boss = getBoss(mafioso);
-        List<Mafioso> subordinates = new ArrayList<>();
-        // TODO: Get direct subordinate!
-        Iterator<Mafioso> i = getSubordinates(mafioso);
-        while (i.hasNext()) {
-            subordinates.add(i.next());
-        }
-        return new MafiosoPosition(boss, mafioso, subordinates);
+        return new MafiosoPosition(getBoss(mafioso), mafioso, getSubordinates(mafioso, false));
     }
 
     @Override
@@ -175,7 +152,29 @@ public class PathMapMafiaOrganization implements MafiaOrganization {
 
     }
 
-	private void promoteOldestSubordinateOf(String bossId, Mafioso oldBoss) {
+    private List<Mafioso> getSubordinates(Mafioso mafioso, boolean goDeep) {
+
+        List<Mafioso> subordinates = new ArrayList<>();
+        String subordinateSuffix = "/" + mafioso.getId() + "/";
+        for (Map.Entry<String, Mafioso> entry : paths.entrySet()) {
+            if (StringUtils.contains(entry.getKey(), subordinateSuffix)) {
+                // Check whether it is a direct subordinate or a indirect subordinate
+                if (!goDeep) {
+                    String path = entry.getKey();
+                    if (!path.substring(path.lastIndexOf(subordinateSuffix) + subordinateSuffix.length())
+                            .contains("/")) {
+                        subordinates.add(entry.getValue());
+                    }
+                } else {
+                    subordinates.add(entry.getValue());
+                }
+            }
+        }
+        return subordinates;
+        // return new ReadOnlyIterator(subordinates.iterator());
+    }
+
+    private void promoteOldestSubordinateOf(String bossId, Mafioso oldBoss) {
         String previousRelation = format("/%s/", oldBoss.getId());
 		int oldestAge = 0;
 		String oldestIndex = "-/";

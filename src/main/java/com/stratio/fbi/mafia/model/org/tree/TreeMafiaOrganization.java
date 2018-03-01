@@ -61,7 +61,7 @@ public class TreeMafiaOrganization implements MafiaOrganization {
 
 	@Override
 	public Iterator<Mafioso> getSubordinates(Mafioso mafioso) {
-        return new TreeIterator(new MafiaCellIterator(cupula.findMafiaCell(mafioso), false));
+        return getSubordinates(mafioso, true);
 	}
 
 	@Override
@@ -75,8 +75,7 @@ public class TreeMafiaOrganization implements MafiaOrganization {
     public MafiosoPosition getMafiosoPosition(Mafioso mafioso) {
         Mafioso boss = getBoss(mafioso);
         List<Mafioso> subordinates = new ArrayList<>();
-        // TODO: Get direct subordinate!
-        Iterator<Mafioso> i = getSubordinates(mafioso);
+        Iterator<Mafioso> i = getSubordinates(mafioso, false);
         while (i.hasNext()) {
             subordinates.add(i.next());
         }
@@ -160,6 +159,10 @@ public class TreeMafiaOrganization implements MafiaOrganization {
 			return e.getMessage();
 		}
 	}
+
+    private Iterator<Mafioso> getSubordinates(Mafioso mafioso, boolean goDeep) {
+        return new TreeIterator(new MafiaCellIterator(cupula.findMafiaCell(mafioso), false, goDeep));
+    }
 
     private void promoteOldestSubordinateOf(MafiaCell bossCell, List<MafiaCell> siblings) {
         MafiaCell oldest = null;

@@ -93,20 +93,7 @@ public class RelationMapMafiaOrganization implements MafiaOrganization {
 
 	@Override
 	public Iterator<Mafioso> getSubordinates(Mafioso mafioso) {
-		// a subordinate is a Mafioso whose relation starts with the current
-		// mafioso id.
-		List<Mafioso> subordinates = new ArrayList<>();
-		String subordinatePrefix = mafioso.getId() + "/";
-		for (Map.Entry<String, Mafioso> entry : relations.entrySet()) {
-			if (StringUtils.startsWith(entry.getKey(), subordinatePrefix)) {
-				Mafioso subordinate = entry.getValue();
-				subordinates.add(subordinate);
-				if (isDeepCount()) {
-					subordinates.addAll(asList(getSubordinates(subordinate)));
-				}
-			}
-		}
-        return new ReadOnlyIterator(subordinates.iterator());
+        return new ReadOnlyIterator(getSubordinates(mafioso, isDeepCount()).iterator());
 	}
 
 	@Override
@@ -126,14 +113,7 @@ public class RelationMapMafiaOrganization implements MafiaOrganization {
 
     @Override
     public MafiosoPosition getMafiosoPosition(Mafioso mafioso) {
-        Mafioso boss = getBoss(mafioso);
-        List<Mafioso> subordinates = new ArrayList<>();
-        // TODO: Get direct subordinate!
-        Iterator<Mafioso> i = getSubordinates(mafioso);
-        while (i.hasNext()) {
-            subordinates.add(i.next());
-        }
-        return new MafiosoPosition(boss, mafioso, subordinates);
+        return new MafiosoPosition(getBoss(mafioso), mafioso, getSubordinates(mafioso, false));
     }
 
     @Override
@@ -168,6 +148,21 @@ public class RelationMapMafiaOrganization implements MafiaOrganization {
 			return e.getMessage();
 		}
 	}
+
+    private List<Mafioso> getSubordinates(Mafioso mafioso, boolean goDeep) {
+        List<Mafioso> subordinates = new ArrayList<>();
+        String subordinatePrefix = mafioso.getId() + "/";
+        for (Map.Entry<String, Mafioso> entry : relations.entrySet()) {
+            if (StringUtils.startsWith(entry.getKey(), subordinatePrefix)) {
+                Mafioso subordinate = entry.getValue();
+                subordinates.add(subordinate);
+                if (goDeep) {
+                    subordinates.addAll(asList(getSubordinates(subordinate)));
+                }
+            }
+        }
+        return subordinates;
+    }
 
 	private List<Mafioso> asList(Iterator<Mafioso> iterator) {
 		List<Mafioso> list = new ArrayList<>();

@@ -152,7 +152,7 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
         organization.addSubordinate(newRecruit, factory.createRandomMafioso());
         organization.addSubordinate(newRecruit, factory.createRandomMafioso());
 
-        checkPosition(null, cupula, 4, newRecruit);
+        checkPosition(null, cupula, 1, newRecruit);
         checkPosition(cupula, newRecruit, 3, newestRecruit);
         checkPosition(newRecruit, newestRecruit, 0, null);
     }
@@ -172,7 +172,8 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 
         List<Mafioso> subordinates = position.getDirectSubordinates();
         assertNotNull(subordinates);
-        assertTrue(subordinates.size() == expectedSubordinateSize);
+        assertTrue(String.format("The subordinate list is incorrect expected %d <-> got %d", expectedSubordinateSize,
+                subordinates.size()), expectedSubordinateSize == subordinates.size());
         if (expectedSubordinateSize != 0) {
             boolean seenSubordinate = false;
             for (Mafioso subordinate : subordinates) {
