@@ -1,7 +1,5 @@
 package com.stratio.fbi.mafia.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -10,11 +8,13 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stratio.fbi.mafia.AbstractControllerTest;
 import com.stratio.fbi.mafia.config.GlobalExceptionHandler.ApiError;
 import com.stratio.fbi.mafia.demo.CosaNostraFactory;
 import com.stratio.fbi.mafia.jpa.MafiosoRepository;
+import com.stratio.fbi.mafia.managers.ICosaNostraManager;
 import com.stratio.fbi.mafia.model.Mafioso;
 
 public class MafiosoControllerTest extends AbstractControllerTest {
@@ -24,14 +24,17 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 	private static final String URL_ID = MAFIOSO_API_URI + "/{id}";
 	private static final String URL_ADD = MAFIOSO_API_URI;
 	private static final String URL_SUBORDINATES = MAFIOSO_API_URI + "/{id}/subordinates";
+    private static final String URL_SEND_TO_JAIL = MAFIOSO_API_URI + "/{id}/sendToJail";
+    private static final String URL_RELEASE_FROM_JAIL = MAFIOSO_API_URI + "/{id}/releaseFromJail";
 
 	@Autowired
 	private CosaNostraFactory factory;
 
+    @Autowired
+    private ICosaNostraManager cosaNostra;
+
 	@Autowired
 	private MafiosoRepository mafiosoRepository;
-
-	private List<Mafioso> mafiosos = new ArrayList<>();
 
 	private Mafioso alCapone;
 	private Mafioso newRecruit;
@@ -40,12 +43,11 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 
 	@Before
 	public void beforeMafiosoControllerTest() {
-		mafiosoRepository.deleteAllInBatch();
+        // mafiosoRepository.deleteAllInBatch();
 		alCapone = mafiosoRepository.save(factory.createGodfather());
 		newRecruit = mafiosoRepository.save(factory.createRandomMafioso());
 		deletedRecruit = mafiosoRepository.save(factory.createRandomMafioso());
 		addedRecruit = factory.createRandomMafioso();
-		mafiosos.addAll(Arrays.asList(new Mafioso[] { alCapone, newRecruit, deletedRecruit, addedRecruit }));
 	}
 
 	@Test
@@ -115,16 +117,59 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getSubordinates() throws Exception {
-		MockHttpServletResponse response = perform(defaultGet(URL_SUBORDINATES, alCapone.getId()));
+        String cupulaId = cosaNostra.getOrganization().getCupula().getId();
+        MockHttpServletResponse response = perform(defaultGet(URL_SUBORDINATES, cupulaId));
 		assertEquals(response.getErrorMessage(), 200, response.getStatus());
 		String contentAsString = response.getContentAsString();
 		assertTrue(StringUtils.isNotBlank(contentAsString));
-		List<Mafioso> mafiosos = new ObjectMapper().readValue(contentAsString, List.class);
-		assertNotNull(mafiosos);
+        List<Mafioso> mafiosos = new ObjectMapper().readValue(contentAsString, new TypeReference<List<Mafioso>>() {
+        });
+        assertNotNull(mafiosos);
+        assertFalse(mafiosos.isEmpty());
+        for (Mafioso mafioso : mafiosos) {
+            checkMafioso(mafioso);
+        }
 	}
-	
+
+    @Test
+    public void testJail() throws Exception {
+        Mafioso oldCupula = cosaNostra.getOrganization().getCupula();
+        String oldCupulaId = oldCupula.getId();
+        MockHttpServletResponse response = perform(defaultPost(URL_SEND_TO_JAIL, oldCupulaId));
+        assertEquals(response.getErrorMessage(), 200, response.getStatus());
+        String contentAsString = response.getContentAsString();
+        assertTrue(StringUtils.isBlank(contentAsString));
+
+        Mafioso newCupula = cosaNostra.getOrganization().getCupula();
+        String newCupulaId = newCupula.getId();
+        assertFalse(StringUtils.equals(oldCupulaId, newCupulaId));
+
+        response = perform(defaultPost(URL_RELEASE_FROM_JAIL, oldCupulaId));
+        assertEquals(response.getErrorMessage(), 200, response.getStatus());
+        contentAsString = response.getContentAsString();
+        assertTrue(StringUtils.isNotBlank(contentAsString));
+        Mafioso mafioso = checkMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
+        assertEquals(oldCupula.getId(), mafioso.getId());
+        assertEquals(oldCupula.getFirstName(), mafioso.getFirstName());
+        assertEquals(oldCupula.getLastName(), mafioso.getLastName());
+        assertEquals(oldCupula.getAge(), mafioso.getAge());
+
+        Mafioso newestCupula = cosaNostra.getOrganization().getCupula();
+        String newestCupulaId = newestCupula.getId();
+        assertTrue(StringUtils.equals(oldCupulaId, newestCupulaId));
+        assertEquals(newestCupula.getId(), mafioso.getId());
+        assertEquals(newestCupula.getFirstName(), mafioso.getFirstName());
+        assertEquals(newestCupula.getLastName(), mafioso.getLastName());
+        assertEquals(newestCupula.getAge(), mafioso.getAge());
+
+        // check that it is the boss
+        response = perform(defaultPost(URL_RELEASE_FROM_JAIL, oldCupulaId));
+        assertEquals(response.getErrorMessage(), 200, response.getStatus());
+        contentAsString = response.getContentAsString();
+        assertTrue(StringUtils.isNotBlank(contentAsString));
+
+    }
 
 	public static Mafioso checkMafioso(Mafioso mafioso) {
 		assertNotNull("Expected a non null mafioso", mafioso);

@@ -17,6 +17,4 @@ public interface ICosaNostraManager {
 
 	void releaseFromJail(String id);
 
-	void sendToCemetery(String id);
-
 }

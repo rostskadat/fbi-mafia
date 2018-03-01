@@ -3,8 +3,8 @@ package com.stratio.fbi.mafia.model.org;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -109,7 +109,6 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 	public void testAddSubordinate() {
         long start = new Date().getTime();
 		Mafioso newRecruit = factory.createRandomMafioso();
-		newRecruit.setId(UUID.randomUUID().toString());
 		testMafioso(newRecruit);
 
 		// Test adding to the root...
@@ -125,14 +124,12 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 
 		// Adding in between...
 		Mafioso newestRecruit = factory.createRandomMafioso();
-		newestRecruit.setId(UUID.randomUUID().toString());
 		organization.addSubordinate(newRecruit, newestRecruit);
 		subordinatesSeen = testSubordinate(newRecruit, newestRecruit);
 		assertEquals(subordinatesSeen, 1);
 
 		// Adding as a leaf...
 		Mafioso latestRecruit = factory.createRandomMafioso();
-		latestRecruit.setId(UUID.randomUUID().toString());
 		organization.addSubordinate(newestRecruit, latestRecruit);
 		subordinatesSeen = testSubordinate(newestRecruit, latestRecruit);
 		assertEquals(subordinatesSeen, 1);
@@ -142,11 +139,56 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
         LOG.info(String.format("Tested adding subordinates in %dms", new Date().getTime() - start));
 	}
 
+    @Test
+    public void testMafiosoPosition() {
+        organization.erase();
+
+        Mafioso cupula = factory.createGodfather();
+        Mafioso newRecruit = factory.createRandomMafioso();
+        Mafioso newestRecruit = factory.createRandomMafioso();
+        organization.setCupula(cupula);
+        organization.addSubordinate(cupula, newRecruit);
+        organization.addSubordinate(newRecruit, newestRecruit);
+        organization.addSubordinate(newRecruit, factory.createRandomMafioso());
+        organization.addSubordinate(newRecruit, factory.createRandomMafioso());
+
+        checkPosition(null, cupula, 4, newRecruit);
+        checkPosition(cupula, newRecruit, 3, newestRecruit);
+        checkPosition(newRecruit, newestRecruit, 0, null);
+    }
+
+    private void checkPosition(Mafioso expectedBoss, Mafioso expectedMafioso,
+            int expectedSubordinateSize, Mafioso expectedSubordinate) {
+        MafiosoPosition position = organization.getMafiosoPosition(expectedMafioso);
+        assertNotNull(position);
+        if (expectedBoss == null) {
+            assertNull(position.getBoss());
+        } else {
+            assertNotNull(position.getBoss());
+            assertMafiosoEquals(position.getBoss(), expectedBoss);
+        }
+        assertNotNull(position.getMafioso());
+        assertMafiosoEquals(position.getMafioso(), expectedMafioso);
+
+        List<Mafioso> subordinates = position.getDirectSubordinates();
+        assertNotNull(subordinates);
+        assertTrue(subordinates.size() == expectedSubordinateSize);
+        if (expectedSubordinateSize != 0) {
+            boolean seenSubordinate = false;
+            for (Mafioso subordinate : subordinates) {
+                if (StringUtils.equals(subordinate.getId(), expectedSubordinate.getId())) {
+                    seenSubordinate = true;
+                }
+            }
+            assertTrue(seenSubordinate);
+        }
+    }
+
 	@Test
 	public void testRemoveSubordinate() {
+        // TODO: Check that it also work for the cupula
         long start = new Date().getTime();
 		Mafioso newRecruit = factory.createRandomMafioso();
-		newRecruit.setId(UUID.randomUUID().toString());
 		testMafioso(newRecruit);
 		Mafioso cupula = organization.getCupula();
 		organization.addSubordinate(cupula, newRecruit);
@@ -183,19 +225,15 @@ public abstract class MafiaOrganizationTest extends AbstractUnitTest {
 
         // I create 2 level, it's easier to check...
         Mafioso intermediaryBoss = factory.createRandomMafioso();
-        intermediaryBoss.setId(UUID.randomUUID().toString());
         intermediaryBoss.setAge(50);
         Mafioso intermediaryCapo = factory.createRandomMafioso();
-        intermediaryCapo.setId(UUID.randomUUID().toString());
         intermediaryCapo.setAge(40);
         organization.addSubordinate(cupula, intermediaryBoss);
         organization.addSubordinate(intermediaryBoss, intermediaryCapo);
         newRecruit = factory.createRandomMafioso();
-        newRecruit.setId(UUID.randomUUID().toString());
         newRecruit.setAge(20);
         organization.addSubordinate(intermediaryCapo, newRecruit);
         Mafioso futureCapo = factory.createRandomMafioso();
-        futureCapo.setId(UUID.randomUUID().toString());
         futureCapo.setAge(30);
         organization.addSubordinate(intermediaryCapo, futureCapo);
         organization.removeFromOrganization(intermediaryCapo);

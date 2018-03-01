@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.stratio.fbi.mafia.managers.ICemeteryManager;
+import com.stratio.fbi.mafia.demo.CosaNostraFactory;
+import com.stratio.fbi.mafia.exception.ResourceNotFoundException;
 import com.stratio.fbi.mafia.managers.ICosaNostraManager;
 import com.stratio.fbi.mafia.managers.IJailManager;
 import com.stratio.fbi.mafia.managers.IMafiosoManager;
@@ -24,22 +29,55 @@ import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 @Component
 public class CosaNostraManager implements ICosaNostraManager {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CosaNostraManager.class);
+
+    private enum OrganizationType {
+        TREE, PATH, RELATION, NONE;
+    }
+
     @Value("${watchThreshold}")
     private Integer watchThreshold;
 
     @Value("${isSubordinateCountDeep:false}")
     private Boolean isDeep;
 
-    @Autowired
-    IMafiosoManager mafiosoManager;
+    @Value("${organizationType:NONE}")
+    private String organizationType;
 
     @Autowired
-    ICemeteryManager cemeteryManager;
+    private CosaNostraFactory factory;
+
+    @Autowired
+    IMafiosoManager mafiosoManager;
 
     @Autowired
     IJailManager jailManager;
 
     MafiaOrganization organization;
+
+    @PostConstruct
+    private void postConstruct() {
+        switch (OrganizationType.valueOf(organizationType)) {
+        case TREE:
+            LOG.info("Creating random Treee MafiaOrganization");
+            organization = factory.getTreeOrganization(true);
+            break;
+        case PATH:
+            LOG.info("Creating random Path MafiaOrganization");
+            organization = factory.getPathListOrganization(true);
+            break;
+        case RELATION:
+            LOG.info("Creating random Relation MafiaOrganization");
+            organization = factory.getRelationListOrganization(true);
+            break;
+        case NONE:
+            LOG.info("Not creating any MafiaOrganization");
+            organization = null;
+            break;
+        default:
+            throw new BeanInitializationException("Invalid organizationType parameter in your application.properties");
+        }
+    }
 
     @Override
     public void setOrganization(MafiaOrganization organization) {
@@ -53,15 +91,13 @@ public class CosaNostraManager implements ICosaNostraManager {
 
     @Override
     public void sendToJail(String id) {
-        Iterator<Mafioso> i = organization.iterator();
-        while (i.hasNext()) {
-            Mafioso mafioso = i.next();
-            if (StringUtils.equals(mafioso.getId(), id)) {
-                jailManager.sendToJail(mafioso);
-                i.remove();
-                // TODO: reshuffle subordinates
-                return;
-            }
+        if (mafiosoManager.exists(id)) {
+            Mafioso mafioso = mafiosoManager.get(id);
+            jailManager.sendToJail(mafioso);
+            organization.removeFromOrganization(mafioso);
+
+        } else {
+            throw new ResourceNotFoundException("'id' doesn't exists: " + id);
         }
     }
 
@@ -69,20 +105,6 @@ public class CosaNostraManager implements ICosaNostraManager {
     public void releaseFromJail(String id) {
         Mafioso mafioso = jailManager.releaseFromJail(id);
         // TODO: reshuflle subordinates
-    }
-
-    @Override
-    public void sendToCemetery(String id) {
-        Iterator<Mafioso> i = organization.iterator();
-        while (i.hasNext()) {
-            Mafioso mafioso = i.next();
-            if (StringUtils.equals(mafioso.getId(), id)) {
-                cemeteryManager.sendToCemetery(mafioso);
-                i.remove();
-                // TODO: reshuffle my subordinate
-                return;
-            }
-        }
     }
 
     @Override

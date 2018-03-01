@@ -2,6 +2,7 @@ package com.stratio.fbi.mafia.model.org.tree;
 
 import static java.lang.String.format;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.stratio.fbi.mafia.model.Mafioso;
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
+import com.stratio.fbi.mafia.model.org.MafiosoPosition;
 
 public class TreeMafiaOrganization implements MafiaOrganization {
 
@@ -23,14 +25,19 @@ public class TreeMafiaOrganization implements MafiaOrganization {
 	private Boolean isDeep;
 
 	@Override
-	public void setDeep(Boolean isDeep) {
+	public void setDeepCount(Boolean isDeep) {
 		this.isDeep = isDeep;
 	}
 
 	@Override
-	public Boolean isDeep() {
+	public Boolean isDeepCount() {
 		return isDeep;
 	}
+
+    @Override
+    public void erase() {
+        cupula = new MafiaCell();
+    }
 
 	@Override
 	public Mafioso getCupula() {
@@ -44,7 +51,12 @@ public class TreeMafiaOrganization implements MafiaOrganization {
 
 	@Override
 	public Mafioso getBoss(Mafioso mafioso) {
-		return cupula.findMafiaCell(mafioso).getBossCell().getMafioso();
+        MafiaCell bossCell = cupula.findMafiaCell(mafioso).getBossCell();
+        if (bossCell == null) {
+            // It's the boss!
+            return null;
+        }
+        return bossCell.getMafioso();
 	}
 
 	@Override
@@ -60,6 +72,39 @@ public class TreeMafiaOrganization implements MafiaOrganization {
 	}
 
 	@Override
+    public MafiosoPosition getMafiosoPosition(Mafioso mafioso) {
+        Mafioso boss = getBoss(mafioso);
+        List<Mafioso> subordinates = new ArrayList<>();
+        // TODO: Get direct subordinate!
+        Iterator<Mafioso> i = getSubordinates(mafioso);
+        while (i.hasNext()) {
+            subordinates.add(i.next());
+        }
+        return new MafiosoPosition(boss, mafioso, subordinates);
+    }
+
+    @Override
+    public void reinstateMafioso(MafiosoPosition position) {
+        Mafioso boss = position.getBoss();
+        Mafioso mafioso = position.getMafioso();
+        List<Mafioso> subordinates = position.getDirectSubordinates();
+        if (boss != null) {
+            MafiaCell oldBossCell = cupula.findMafiaCell(boss);
+            MafiaCell newBossCell = new MafiaCell(mafioso);
+            newBossCell.addSubordinate(oldBossCell.getMafioso());
+            oldBossCell.setBossCell(oldBossCell);
+        } else {
+            // I'm reinstating the Cupula. In this case I need to make sure that the MafiaCell is properly configured
+            MafiaCell oldCupula = cupula;
+            MafiaCell newCupula = new MafiaCell(mafioso);
+            newCupula.setSubordinates(oldCupula.getSubordinates());
+            newCupula.addSubordinate(oldCupula.getMafioso());
+            oldCupula.setBossCell(newCupula);
+            cupula = newCupula;
+        }
+    }
+
+    @Override
     public void removeFromOrganization(Mafioso mafioso) {
         MafiaCell mafiaCell = cupula.findMafiaCell(mafioso);
         if (mafiaCell == null) {
@@ -67,9 +112,14 @@ public class TreeMafiaOrganization implements MafiaOrganization {
 			return;
 		}
         MafiaCell bossCell = mafiaCell.getBossCell();
-        List<MafiaCell> siblings = bossCell.getSubordinates();
-        siblings.remove(mafiaCell);
-        promoteOldestSubordinateOf(bossCell, mafiaCell.getSubordinates());
+        if (bossCell == null) {
+            // Al Capone is gone
+            cupula = promoteOldestOf(mafiaCell.getSubordinates());
+        } else {
+            List<MafiaCell> siblings = bossCell.getSubordinates();
+            siblings.remove(mafiaCell);
+            promoteOldestSubordinateOf(bossCell, mafiaCell.getSubordinates());
+        }
 	}
 
 	@Override
@@ -124,4 +174,19 @@ public class TreeMafiaOrganization implements MafiaOrganization {
             oldest.getSubordinates().addAll(siblings);
         }
     }
+
+    private MafiaCell promoteOldestOf(List<MafiaCell> siblings) {
+        MafiaCell oldest = null;
+        for (MafiaCell sibling : siblings) {
+            if (oldest == null || oldest.getMafioso().getAge() < sibling.getMafioso().getAge()) {
+                oldest = sibling;
+            }
+        }
+        if (oldest != null) {
+            siblings.remove(oldest);
+            oldest.getSubordinates().addAll(siblings);
+        }
+        return oldest;
+    }
+
 }

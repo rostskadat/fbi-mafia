@@ -56,45 +56,69 @@ public class CosaNostraFactory {
 	}
 
 	public MafiaOrganization getTreeOrganization() {
-		return createOrganization(createTree(createGodfather(), isDeep));
+        return getTreeOrganization(false);
 	}
 
-	public MafiaOrganization getPathListOrganization() {
-		return createOrganization(createPathList(createGodfather(), isDeep));
-	}
+    public MafiaOrganization getTreeOrganization(boolean register) {
+        return createOrganization(createTree(createGodfather(register), isDeep), register);
+    }
 
-	public MafiaOrganization getRelationListOrganization() {
-		return createOrganization(createRelationList(createGodfather(), isDeep));
-	}
+    public MafiaOrganization getPathListOrganization() {
+        return getPathListOrganization(false);
+    }
+
+    public MafiaOrganization getPathListOrganization(boolean register) {
+        return createOrganization(createPathList(createGodfather(register), isDeep), register);
+    }
+
+    public MafiaOrganization getRelationListOrganization() {
+        return getRelationListOrganization(false);
+    }
+
+    public MafiaOrganization getRelationListOrganization(boolean register) {
+        return createOrganization(createRelationList(createGodfather(register), isDeep), register);
+    }
 
 	public Mafioso createGodfather() {
-		Mafioso godfather = new Mafioso();
-		godfather.setId("0");
-		godfather.setFirstName("Al");
-		godfather.setLastName("Capone");
-		godfather.setAge(48);
-		return godfather;
+        return createGodfather(false);
 	}
+
+    public Mafioso createGodfather(boolean register) {
+        Mafioso godfather = new Mafioso();
+        godfather.setFirstName("Al");
+        godfather.setLastName("Capone");
+        godfather.setAge(48);
+        if (register) {
+            return mafiosoManager.add(godfather);
+        }
+        godfather.setId("0");
+        return godfather;
+    }
 
 	public Mafioso createRandomMafioso() {
-		ThreadLocalRandom random = ThreadLocalRandom.current();
-		Mafioso mafioso = new Mafioso();
-		mafioso.setId(UUID.randomUUID().toString());
-		mafioso.setFirstName(firstNames.get(random.nextInt(0, firstNames.size())));
-		mafioso.setLastName(lastNames.get(random.nextInt(0, lastNames.size())));
-		mafioso.setAge(random.nextInt(18, 100));
-		return mafioso;
+        return createRandomMafioso(false);
 	}
 
-	private MafiaOrganization createOrganization(MafiaOrganization organization) {
+    public Mafioso createRandomMafioso(boolean register) {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        Mafioso mafioso = new Mafioso();
+        mafioso.setFirstName(firstNames.get(random.nextInt(0, firstNames.size())));
+        mafioso.setLastName(lastNames.get(random.nextInt(0, lastNames.size())));
+        mafioso.setAge(random.nextInt(18, 100));
+        if (register) {
+            return mafiosoManager.add(mafioso);
+        }
+        mafioso.setId(UUID.randomUUID().toString());
+        return mafioso;
+    }
+
+    private MafiaOrganization createOrganization(MafiaOrganization organization, boolean register) {
 		ThreadLocalRandom random = ThreadLocalRandom.current();
 		List<Mafioso> mafiosos = new ArrayList<>();
 		Mafioso boss = organization.getCupula();
-		boss.setId("0");
 		mafiosos.add(boss);
 		for (int i = 1; i < MAX_MAFIOSO; i++) {
-			Mafioso mafioso = createRandomMafioso();
-			mafioso.setId(String.valueOf(i));
+            Mafioso mafioso = createRandomMafioso(register);
 			mafiosos.add(mafioso);
 			organization.addSubordinate(boss, mafioso);
 			int lowerBound = 0;

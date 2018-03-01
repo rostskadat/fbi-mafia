@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.stratio.fbi.mafia.model.Mafioso;
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
+import com.stratio.fbi.mafia.model.org.MafiosoPosition;
 
 /**
  * This class only capture the relation between {@link Mafioso}. Each relation
@@ -33,14 +34,19 @@ public class RelationMapMafiaOrganization implements MafiaOrganization {
 	private Boolean isDeep;
 
 	@Override
-	public void setDeep(Boolean isDeep) {
+	public void setDeepCount(Boolean isDeep) {
 		this.isDeep = isDeep;
 	}
 
 	@Override
-	public Boolean isDeep() {
+	public Boolean isDeepCount() {
 		return isDeep;
 	}
+
+    @Override
+    public void erase() {
+        relations = new HashMap<>();
+    }
 
 	@Override
 	public void setCupula(Mafioso cupula) {
@@ -95,7 +101,7 @@ public class RelationMapMafiaOrganization implements MafiaOrganization {
 			if (StringUtils.startsWith(entry.getKey(), subordinatePrefix)) {
 				Mafioso subordinate = entry.getValue();
 				subordinates.add(subordinate);
-				if (isDeep()) {
+				if (isDeepCount()) {
 					subordinates.addAll(asList(getSubordinates(subordinate)));
 				}
 			}
@@ -117,6 +123,23 @@ public class RelationMapMafiaOrganization implements MafiaOrganization {
 		// If not found just set it...
 		relations.put(relation, subordinate);
 	}
+
+    @Override
+    public MafiosoPosition getMafiosoPosition(Mafioso mafioso) {
+        Mafioso boss = getBoss(mafioso);
+        List<Mafioso> subordinates = new ArrayList<>();
+        // TODO: Get direct subordinate!
+        Iterator<Mafioso> i = getSubordinates(mafioso);
+        while (i.hasNext()) {
+            subordinates.add(i.next());
+        }
+        return new MafiosoPosition(boss, mafioso, subordinates);
+    }
+
+    @Override
+    public void reinstateMafioso(MafiosoPosition position) {
+        throw new UnsupportedOperationException();
+    }
 
 	@Override
     public void removeFromOrganization(Mafioso subordinate) {

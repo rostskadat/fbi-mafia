@@ -6,9 +6,14 @@ import com.stratio.fbi.mafia.model.Mafioso;
 
 public interface MafiaOrganization {
 
-	void setDeep(Boolean isDeep);
+    void setDeepCount(Boolean isDeepCount);
 
-	Boolean isDeep();
+	Boolean isDeepCount();
+
+    /**
+     * This method completely erase the organization.
+     */
+    void erase();
 
 	void setCupula(Mafioso mafioso);
 
@@ -33,7 +38,7 @@ public interface MafiaOrganization {
     void removeFromOrganization(Mafioso mafioso);
 
     /**
-     * This method will add a {@code subordinate} to the given {@code boss}
+     * This method will add a {@code subordinate} to the given {@code boss}. It is not to be confused with the
      * 
      * @param boss
      *            the {@link Mafioso} to add the {@code subordinate} to
@@ -41,6 +46,22 @@ public interface MafiaOrganization {
      *            the {@link Mafioso} to add the {@code boss}'s list of subordinate
      */
 	void addSubordinate(Mafioso boss, Mafioso subordinate);
+
+    /**
+     * This method capture a {@link Mafioso} position within an organization. It is used to re-establish his position
+     * once freed from Jail.
+     * 
+     * @param mafioso
+     * @return
+     */
+    MafiosoPosition getMafiosoPosition(Mafioso mafioso);
+
+    /**
+     * This method is used to reinstate a specific {@link Mafioso} to its previous position in the organization
+     * 
+     * @param position
+     */
+    void reinstateMafioso(MafiosoPosition position);
 
     /**
      * This method returns an {@link Iterator} on the list of subordinate for that {@code boss}. <br/>

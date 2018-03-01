@@ -29,7 +29,7 @@ public class OrganizationFactory {
     public static MafiaOrganization createTree(Mafioso godfather, boolean isDeep) {
         MafiaOrganization organization = new TreeMafiaOrganization();
         organization.setCupula(godfather);
-        organization.setDeep(isDeep);
+        organization.setDeepCount(isDeep);
         return organization;
     }
 
@@ -45,7 +45,7 @@ public class OrganizationFactory {
     public static MafiaOrganization createPathList(Mafioso godfather, boolean isDeep) {
         MafiaOrganization organization = new PathMapMafiaOrganization();
         organization.setCupula(godfather);
-        organization.setDeep(isDeep);
+        organization.setDeepCount(isDeep);
         return organization;
     }
 
@@ -61,7 +61,7 @@ public class OrganizationFactory {
     public static MafiaOrganization createRelationList(Mafioso godfather, boolean isDeep) {
         MafiaOrganization organization = new RelationMapMafiaOrganization();
         organization.setCupula(godfather);
-        organization.setDeep(isDeep);
+        organization.setDeepCount(isDeep);
         return organization;
     }
 }

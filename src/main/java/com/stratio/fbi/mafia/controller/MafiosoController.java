@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stratio.fbi.mafia.exception.ResourceNotFoundException;
-import com.stratio.fbi.mafia.managers.ICemeteryManager;
 import com.stratio.fbi.mafia.managers.ICosaNostraManager;
 import com.stratio.fbi.mafia.managers.IJailManager;
 import com.stratio.fbi.mafia.managers.IMafiosoManager;
@@ -40,9 +39,6 @@ public class MafiosoController {
 
 	@Autowired
 	private IJailManager jailManager;
-
-	@Autowired
-	private ICemeteryManager cemeteryManager;
 
 	@Autowired
 	private ICosaNostraManager cosaNostra;
@@ -106,14 +102,6 @@ public class MafiosoController {
 		cosaNostra.releaseFromJail(id);
 		jailManager.releaseFromJail(id);
 		return mafioso;
-	}
-
-	@PostMapping("/{id}/sendToCemetery")
-	@ResponseBody
-	public void sendToCemetery(@Valid @PathVariable(PARAM_ID) String id) {
-		Mafioso mafioso = checkValidMafioso(id);
-		cosaNostra.sendToCemetery(id);
-		cemeteryManager.sendToCemetery(mafioso);
 	}
 
 	private Mafioso checkValidMafioso(String id) {

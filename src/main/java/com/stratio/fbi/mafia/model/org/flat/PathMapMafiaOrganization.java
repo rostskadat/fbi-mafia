@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.stratio.fbi.mafia.model.Mafioso;
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
+import com.stratio.fbi.mafia.model.org.MafiosoPosition;
 
 /**
  * This class capture the whole hierarchy for each {@link Mafioso}. The key is
@@ -32,14 +33,19 @@ public class PathMapMafiaOrganization implements MafiaOrganization {
 	private Boolean isDeep;
 
 	@Override
-	public void setDeep(Boolean isDeep) {
+	public void setDeepCount(Boolean isDeep) {
 		this.isDeep = isDeep;
 	}
 
 	@Override
-	public Boolean isDeep() {
+	public Boolean isDeepCount() {
 		return isDeep;
 	}
+
+    @Override
+    public void erase() {
+        paths = new HashMap<>();
+    }
 
 	@Override
 	public void setCupula(Mafioso cupula) {
@@ -82,7 +88,7 @@ public class PathMapMafiaOrganization implements MafiaOrganization {
 		String subordinateSuffix = "/" + mafioso.getId() + "/";
 		for (Map.Entry<String, Mafioso> entry : paths.entrySet()) {
 			if (StringUtils.contains(entry.getKey(), subordinateSuffix)) {
-				if (!isDeep()) {
+				if (!isDeepCount()) {
 					String path = entry.getKey();
 					if (!path.substring(path.lastIndexOf(subordinateSuffix)).contains("/")) {
 						subordinates.add(entry.getValue());
@@ -113,7 +119,24 @@ public class PathMapMafiaOrganization implements MafiaOrganization {
 		paths.put(subordinatePath, subordinate);
 	}
 
-	@Override
+    @Override
+    public MafiosoPosition getMafiosoPosition(Mafioso mafioso) {
+        Mafioso boss = getBoss(mafioso);
+        List<Mafioso> subordinates = new ArrayList<>();
+        // TODO: Get direct subordinate!
+        Iterator<Mafioso> i = getSubordinates(mafioso);
+        while (i.hasNext()) {
+            subordinates.add(i.next());
+        }
+        return new MafiosoPosition(boss, mafioso, subordinates);
+    }
+
+    @Override
+    public void reinstateMafioso(MafiosoPosition position) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void removeFromOrganization(Mafioso subordinate) {
 		String previousRelation = format("/%s", subordinate.getId());
 		for (Map.Entry<String, Mafioso> entry : paths.entrySet()) {
@@ -183,4 +206,5 @@ public class PathMapMafiaOrganization implements MafiaOrganization {
 			}
 		}
 	}
+
 }
