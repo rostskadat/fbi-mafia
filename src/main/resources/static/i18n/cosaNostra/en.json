@@ -2,6 +2,7 @@
     "cosaNostra.i18n.english": "English",
     "cosaNostra.i18n.spanish": "Espanol",
     "cosaNostra.welcome": "Welcome to the FBI Mafia Watchlist",
+    "cosaNostra.getOrganization": "getOrganization",
     "cosaNostra.getWatchList": "getWatchList",
     "cosaNostra.loading": "Loading..."
 }
