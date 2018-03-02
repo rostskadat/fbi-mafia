@@ -6,7 +6,7 @@
      * @ngdoc module
      * @description The main module for the explore functionality. Should gather all the dependencies...
      */
-    var module = angular.module('fbi-mafia.cosaNostra', [ 'ngRoute', 'ui.bootstrap' ]);
+    var module = angular.module('fbi-mafia.cosaNostra', [ 'ngRoute', 'ngVis', 'ui.bootstrap' ]);
 
     module.run(function() {
         // Init code here...

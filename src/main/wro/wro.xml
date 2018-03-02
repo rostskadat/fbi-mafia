@@ -7,6 +7,11 @@
     <js>webjar:angular-translate-loader-partial/@angular-translate-loader-partial.version@/angular-translate-loader-partial.js</js>
     <js>webjar:angular-sanitize/@angular-sanitize.version@/angular-sanitize.js</js>
   </group>
+  <group name="fbi-mafia-vis">
+    <css>webjar:visjs/@visjs.version@/vis.css</css>
+    <js>webjar:angular-visjs/@angular-visjs.version@/angular-vis.js</js>
+    <js>webjar:visjs/@visjs.version@/vis.js</js>
+  </group>
   <group name="fbi-mafia-external">
     <css>webjar:bootstrap/@bootstrap.version@/css/bootstrap.css</css>
     <css>webjar:font-awesome/@font-awesome.version@/css/font-awesome.css</css>
