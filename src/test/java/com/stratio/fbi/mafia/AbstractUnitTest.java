@@ -1,6 +1,7 @@
 package com.stratio.fbi.mafia;
 
 import org.junit.runner.RunWith;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.TestPropertySource;
@@ -13,6 +14,7 @@ import junit.framework.TestCase;
         @ContextConfiguration(classes = { Config.class })
 })
 @TestPropertySource(locations = "classpath:randomCosaNostra.properties")
+@PropertySource("classpath:cosaNostra.properties")
 public abstract class AbstractUnitTest extends TestCase {
 
 }

@@ -66,7 +66,9 @@ public class ICosaNostraManagerTest extends AbstractUnitTest {
     @Test
     public void testJail() {
         if (OrganizationType.NONE != cosaNostra.getOrganizationType()) {
+
             MafiaOrganization organization = cosaNostra.getOrganization();
+            factory.createFixedOrganization(organization, true);
             Mafioso oldCupula = organization.getCupula();
             String oldCupulaId = oldCupula.getId();
 
