@@ -1,0 +1,388 @@
+{
+	"info": {
+		"name": "FBI-MAFIA",
+		"_postman_id": "ad8ad2c2-492b-c8d8-53df-5dac337feb16",
+		"description": "Use the PRODBO environment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/api/mafioso",
+			"description": "",
+			"item": [
+				{
+					"name": "addMafioso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3646da9a-9533-432b-86a1-2f0054348a74",
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"mafiosoId\", jsonData.id);",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"NA\",\n  \"firstName\": \"FirstName\",\n  \"lastName\": \"LastName\",\n  \"age\": 40\n}\n"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/mafioso",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"mafioso"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "getMafioso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "469f5e4c-0de8-4382-9956-060d997ed461",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Body is correct\", function () {",
+									"    var jsonData = JSON.parse(responseBody);",
+									"    postman.getEnvironmentVariable(\"mafiosoId\") == jsonData.id;",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/mafioso/{{mafiosoId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"mafioso",
+								"{{mafiosoId}}"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "updateMafioso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bbd24630-0d41-4411-9632-72d433c766e6",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Body is correct\", function () {",
+									"    var jsonData = JSON.parse(responseBody);",
+									"    \"UpdatedFirstName\" == jsonData.firstName;",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"NA\",\n  \"firstName\": \"UpdatedFirstName\",\n  \"lastName\": \"LastName\",\n  \"age\": 40\n}\n"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/mafioso/{{mafiosoId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"mafioso",
+								"{{mafiosoId}}"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "deleteMafioso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "147a6ef8-d8bf-40d5-acfc-480841d1c7f4",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Body is correct\", function () {",
+									"    responseBody === null;",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/mafioso/{{mafiosoId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"mafioso",
+								"{{mafiosoId}}"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/api/cosaNostra",
+			"description": "",
+			"item": [
+				{
+					"name": "getOrganization",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "87949038-b64e-4e5e-bac8-fa86aaa80f27",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Al\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"NA\",\n  \"firstName\": \"FirstName\",\n  \"lastName\": \"LastName\",\n  \"age\": 40\n}\n"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cosaNostra/getOrganization",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cosaNostra",
+								"getOrganization"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "getWatchList",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "87949038-b64e-4e5e-bac8-fa86aaa80f27",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Al\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"NA\",\n  \"firstName\": \"FirstName\",\n  \"lastName\": \"LastName\",\n  \"age\": 40\n}\n"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cosaNostra/getWatchList",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cosaNostra",
+								"getWatchList"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "sendToJail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4af33d2e-40f5-41ac-802d-65f3963a31c8",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.be.empty;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cosaNostra/sendToJail/{{mafiosoId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cosaNostra",
+								"sendToJail",
+								"{{mafiosoId}}"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "releaseFromJail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4af33d2e-40f5-41ac-802d-65f3963a31c8",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.be.empty;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/cosaNostra/releaseFromJail/{{mafiosoId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"cosaNostra",
+								"releaseFromJail",
+								"{{mafiosoId}}"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
