@@ -4,6 +4,7 @@
 <title>FBI Mafia Explorer</title>
 <base href="/" />
 <link rel="stylesheet" href="css/fbi-mafia-external.css">
+<link rel="stylesheet" href="css/fbi-mafia-i18n.css">
 <style type="text/css">
 [ng\:cloak], [ng-cloak], .ng-cloak {
 	display: none !important;
@@ -14,20 +15,22 @@ body {
 }
 </style>
 <script type="text/javascript" src="js/fbi-mafia-external.js"></script>
+<script type="text/javascript" src="js/fbi-mafia-i18n.js"></script>
 </head>
 <!-- ng-strict-di  -->
 <body ng:app="fbi-mafia" ng:cloak class="ng-cloak" ng-resize>
   <div class=".container-fluid" ng:view></div>
-  <script type="text/javascript" src="js/auth/auth.js"></script>
+  <script type="text/javascript" src="js/shared/BaseService.js"></script>
+  <script type="text/javascript" src="js/shared/Preferences.js"></script>
   <script type="text/javascript" src="js/shared/filters.js"></script>
   <script type="text/javascript" src="js/shared/Directives.js"></script>
   <script type="text/javascript" src="js/shared/ngRightClick.js"></script>
   <script type="text/javascript" src="js/shared/ngResize.js"></script>
-  <script type='text/javascript' src="js/shared/notify.js"></script>
-  <script type="text/javascript" src="js/explore/ExplorerModule.js"></script>
-  <script type="text/javascript" src="js/explore/ExplorerConstants.js"></script>
-  <script type="text/javascript" src="js/explore/ExplorerService.js"></script>
-  <script type="text/javascript" src="js/explore/ExplorerController.js"></script>
+  <script type="text/javascript" src="js/i18n/I18n.js"></script>
+  <script type="text/javascript" src="js/cosaNostra/CosaNostraModule.js"></script>
+  <script type="text/javascript" src="js/cosaNostra/CosaNostraConstants.js"></script>
+  <script type="text/javascript" src="js/cosaNostra/CosaNostraService.js"></script>
+  <script type="text/javascript" src="js/cosaNostra/CosaNostraController.js"></script>
   <script type="text/javascript" src="js/navigation/navigation.js"></script>
   <script type="text/javascript" src="js/app.js"></script>
 </body>

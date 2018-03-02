@@ -1,24 +1,23 @@
 <groups xmlns="http://www.isdc.ro/wro">
+  <group name="fbi-mafia-i18n">
+    <css>webjar:flag-icon-css/@flag-icon-css.version@/css/flag-icon.css</css>
+    <js>webjar:angular-translate/@angular-translate.version@/angular-translate.js</js>
+    <js>webjar:angular-translate-loader-url/@angular-translate.version@/angular-translate-loader-url.js</js>
+    <js>webjar:angular-translate-loader-static-files/@angular-translate.version@/angular-translate-loader-static-files.js</js>
+    <js>webjar:angular-translate-loader-partial/@angular-translate-loader-partial.version@/angular-translate-loader-partial.js</js>
+    <js>webjar:angular-sanitize/@angular-sanitize.version@/angular-sanitize.js</js>
+  </group>
   <group name="fbi-mafia-external">
     <css>webjar:bootstrap/@bootstrap.version@/css/bootstrap.css</css>
     <css>webjar:font-awesome/@font-awesome.version@/css/font-awesome.css</css>
-    <css>webjar:bootstrap3-dialog/@bootstrap3-dialog.version@/dist/css/bootstrap-dialog.min.css</css>
     <css>file:@project.basedir@/src/main/wro/main.less</css>
-    
-    
     <js>webjar:jquery/@jquery.version@/jquery.js</js>
     <js>webjar:bootstrap/@bootstrap.version@/js/bootstrap.js</js>
     <js>webjar:angularjs/@angularjs.version@/angular.js</js>
     <js>webjar:angularjs/@angularjs.version@/angular-route.js</js>
     <js>webjar:angularjs/@angularjs.version@/angular-cookies.js</js>
     <js>webjar:angularjs/@angularjs.version@/angular-resource.js</js>
-    <js>webjar:bootstrap-menu/@bootstrap-menu.version@/dist/BootstrapMenu.js</js>
-    <js>webjar:bootstrap-notify/@bootstrap-notify.version@/bootstrap-notify.js</js>
-    <js>webjar:bootstrap3-dialog/@bootstrap3-dialog.version@/dist/js/bootstrap-dialog.js</js>
-    <js>webjar:momentjs/@momentjs.version@/moment.js</js>
-    <js>webjar:ui-grid/@ui-grid.version@/ui-grid.js</js>
+    <js>webjar:angular-ui-bootstrap/@angular-ui-bootstrap.version@/ui-bootstrap.js</js>
     <js>webjar:angular-ui-bootstrap/@angular-ui-bootstrap.version@/ui-bootstrap-tpls.js</js>
-    <js>webjar:angular-file-saver/@angular-file-saver.version@/dist/angular-file-saver.bundle.js</js>
-    <js>webjar:smart-table/@smart-table.version@/smart-table.js</js>
   </group>
 </groups>

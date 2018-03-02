@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    var ExplorerConstants = {
+    var CosaNostraConstants = {
         COLUMN_DEFS : [ {
             field : 'name',
             displayName : 'Name',
@@ -32,6 +32,6 @@
         } ],
     };
 
-    angular.module('fbi-mafia.explorer').constant('ExplorerConstants', ExplorerConstants);
+    angular.module('fbi-mafia.cosaNostra').constant('CosaNostraConstants', CosaNostraConstants);
 
 })();

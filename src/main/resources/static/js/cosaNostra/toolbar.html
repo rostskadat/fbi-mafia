@@ -1,0 +1,42 @@
+<div class="row" ng-controller="CosaNostraController as controller"  ng-init="controller.init()">
+  <div class="col-md-12">
+    <div class="row tab-description">
+      <span>{{'cosaNostra.welcome' | translate}}</span>
+    </div>
+    <div class="row tab-toolbar">
+      <div class="btn-group" role="group" aria-label="Actions">
+        <label type="button" class="btn btn-default" ng-click="controller.download()" ng-disabled="!scheduledListLoaded">
+          <i class="fa fa-download" aria-hidden="true"></i>
+          {{'cosaNostra.getOrganization' | translate}}
+        </label>
+        <label type="button" class="btn btn-default" ng-click="controller.refresh()">
+          <i class="fa fa-refresh" aria-hidden="true"></i>
+          {{'cosaNostra.getOrganization' | translate}}
+        </label>
+      </div>
+    </div>
+    <div class="row tab-content">
+      <div class="col-md-12" ><!-- ng-show="scheduledListLoaded" -->
+        <div id="scheduledList" ui-grid="scheduledListGrid" ui-grid-cell-nav ui-grid-auto-resize ui-grid-resize-columns
+          ui-grid-exporter ui-grid-save-state ui-grid-expandable ui-grid-grouping ui-grid-pagination
+          class="scheduled-list-grid"></div>
+      </div>
+      <div class="col-md-12" ng-show="!scheduledListLoaded">
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+        <span>{{'prodbo.scheduled.loading' | translate}}</span>
+      </div>
+    </div>
+    <div class="row tab-content" ng-show="view == 'network'">
+      <div class="col-md-12" ng-show="networkLoaded">
+        <vis-network data="network.data" options="network.options" events="network.events"></vis-network>
+      </div>
+      <div class="col-md-12" ng-show="!networkLoaded">
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+        <span>{{'prodbo.scheduled.loading' | translate}}</span>
+      </div>
+    </div>
+    <div class="row">
+      <div id="newBatchScheduledDialog"></div>
+    </div>
+  </div>
+</div>

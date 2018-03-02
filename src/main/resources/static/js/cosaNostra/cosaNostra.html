@@ -1,0 +1,33 @@
+<div class="col-md-12 content ng-cloak" ng-controller="CosaNostraController as controller" ng-init="controller.init()">
+<div class="row" ng-controller="CosaNostraController as controller"  ng-init="controller.init()">
+  <div class="col-md-12">
+    <div class="row tab-description">
+      <span>{{'cosaNostra.welcome' | translate}}</span>
+    </div>
+    <div class="row tab-toolbar">
+      <div class="btn-group" role="group" aria-label="Actions">
+        <label type="button" class="btn btn-default" ng-click="controller.download()" ng-disabled="!scheduledListLoaded">
+          <i class="fa fa-download" aria-hidden="true"></i>
+          {{'cosaNostra.getOrganization' | translate}}
+        </label>
+        <label type="button" class="btn btn-default" ng-click="controller.refresh()">
+          <i class="fa fa-refresh" aria-hidden="true"></i>
+          {{'cosaNostra.getWatchList' | translate}}
+        </label>
+      </div>
+    </div>
+    <div class="row tab-content" >
+      <div class="col-md-12" ng-show="organizationLoaded">
+        <vis-network data="organization.data" options="organization.options" events="organization.events"></vis-network>
+      </div>
+      <div class="col-md-12" ng-show="!networkLoaded">
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+        <span>{{'cosaNostra.loading' | translate}}</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="col-md-12 content ng-cloak" >
+    <ng:include src="'/js/navigation/footer.html'"></ng:include>
+</div>
