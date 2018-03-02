@@ -38,7 +38,7 @@
              * @methodOf  fbi-mafia.cosaNostra:CosaNostraService
              * @description This function returns the list of Mafioso on the FBI watchList
              */
-            getListToWatch : function(successCallback, errorCallback) {
+            getWatchList : function(successCallback, errorCallback) {
                 $http.get('/api/cosaNostra/getWatchList').then(successCallback, errorCallback);
             }
         };

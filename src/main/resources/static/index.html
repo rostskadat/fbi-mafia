@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:ng="http://angularjs.org/">
+<html xmlns:ng="http://angularjs.org/" lang="en">
 <head>
 <title>FBI Mafia Explorer</title>
 <base href="/" />
@@ -11,7 +11,40 @@
 	display: none !important;
 }
 
-body {
+html, body, .ng-scope, .container-fluid, .row, .vis-network {
+	height: 100%;
+}
+
+.bd-callout-info {
+	border-left-color: #5bc0de !important;
+}
+
+.bd-callout {
+	padding: 1.25rem;
+	margin-top: 1.25rem;
+	margin-bottom: 1.25rem;
+	border: 1px solid #eee;
+	border-left-width: .25rem;
+	border-radius: .25rem;
+}
+
+.bd-callout-info h4 {
+	color: #5bc0de;
+}
+
+.bd-callout h4 {
+	margin-top: 0;
+	margin-bottom: .25rem;
+}
+
+.vis-network-container {
+	border: 1px solid #eee;
+	min-height: 400px;
+	height: 100%;
+}
+
+.vis-network>canvas {
+	min-height: 600px;
 	height: 100%;
 }
 </style>
@@ -21,19 +54,21 @@ body {
 </head>
 <!-- ng-strict-di  -->
 <body ng:app="fbi-mafia" ng:cloak class="ng-cloak" ng-resize>
-  <div class=".container-fluid" ng:view></div>
-  <script type="text/javascript" src="js/shared/BaseService.js"></script>
-  <script type="text/javascript" src="js/shared/Preferences.js"></script>
-  <script type="text/javascript" src="js/shared/filters.js"></script>
-  <script type="text/javascript" src="js/shared/Directives.js"></script>
-  <script type="text/javascript" src="js/shared/ngRightClick.js"></script>
-  <script type="text/javascript" src="js/shared/ngResize.js"></script>
-  <script type="text/javascript" src="js/i18n/I18n.js"></script>
-  <script type="text/javascript" src="js/cosaNostra/CosaNostraModule.js"></script>
-  <script type="text/javascript" src="js/cosaNostra/CosaNostraConstants.js"></script>
-  <script type="text/javascript" src="js/cosaNostra/CosaNostraService.js"></script>
-  <script type="text/javascript" src="js/cosaNostra/CosaNostraController.js"></script>
-  <script type="text/javascript" src="js/navigation/navigation.js"></script>
-  <script type="text/javascript" src="js/app.js"></script>
+	<div class=".container-fluid" ng:view></div>
+	<script type="text/javascript" src="js/shared/BaseService.js"></script>
+	<script type="text/javascript" src="js/shared/Preferences.js"></script>
+	<script type="text/javascript" src="js/shared/filters.js"></script>
+	<script type="text/javascript" src="js/shared/Directives.js"></script>
+	<script type="text/javascript" src="js/shared/ngRightClick.js"></script>
+	<script type="text/javascript" src="js/shared/ngResize.js"></script>
+	<script type="text/javascript" src="js/i18n/I18n.js"></script>
+	<script type="text/javascript" src="js/cosaNostra/CosaNostraModule.js"></script>
+	<script type="text/javascript"
+		src="js/cosaNostra/CosaNostraConstants.js"></script>
+	<script type="text/javascript" src="js/cosaNostra/CosaNostraService.js"></script>
+	<script type="text/javascript"
+		src="js/cosaNostra/CosaNostraController.js"></script>
+	<script type="text/javascript" src="js/navigation/navigation.js"></script>
+	<script type="text/javascript" src="js/app.js"></script>
 </body>
 </html>
