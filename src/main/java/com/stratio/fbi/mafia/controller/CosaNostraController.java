@@ -36,7 +36,11 @@ public class CosaNostraController {
         LOG.info("ExplorerController.postConstruct()");
     }
 
-
+    /**
+     * This method returns the whole organization
+     * 
+     * @return
+     */
     @GetMapping("/getOrganization")
 	@ResponseBody
     public MafiaOrganization getOrganization() {

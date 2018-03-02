@@ -34,6 +34,10 @@ public class TreeMafiaOrganization implements MafiaOrganization {
         cupula = new MafiaCell();
     }
 
+    public MafiaCell getCupulaForSerialization() {
+        return cupula;
+    }
+
 	@Override
 	public Mafioso getCupula() {
 		return cupula.getMafioso();

@@ -10,7 +10,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
+import com.stratio.fbi.mafia.model.org.tree.TreeMafiaOrganization;
 
 /**
  * 
@@ -35,7 +37,10 @@ public final class MafiaOrganizationConverter extends AbstractHttpMessageConvert
     @Override
     protected void writeInternal(MafiaOrganization t, HttpOutputMessage outputMessage)
             throws IOException, HttpMessageNotWritableException {
-        new ObjectMapper().writeValue(outputMessage.getBody(), t);
+        TreeMafiaOrganization tree = (TreeMafiaOrganization) t;
+        new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+                .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+                .writeValue(outputMessage.getBody(), tree.getCupulaForSerialization());
     }
 
 }
