@@ -11,32 +11,18 @@
         </label>
         <label type="button" class="btn btn-default" ng-click="controller.refresh()">
           <i class="fa fa-refresh" aria-hidden="true"></i>
-          {{'cosaNostra.getOrganization' | translate}}
+          {{'cosaNostra.getWatchList' | translate}}
         </label>
       </div>
     </div>
     <div class="row tab-content">
-      <div class="col-md-12" ><!-- ng-show="scheduledListLoaded" -->
-        <div id="scheduledList" ui-grid="scheduledListGrid" ui-grid-cell-nav ui-grid-auto-resize ui-grid-resize-columns
-          ui-grid-exporter ui-grid-save-state ui-grid-expandable ui-grid-grouping ui-grid-pagination
-          class="scheduled-list-grid"></div>
+      <div class="col-md-12" ng-show="organizationLoaded">
+        <vis-network data="organization.data" options="organization.options" events="organization.events"></vis-network>
       </div>
-      <div class="col-md-12" ng-show="!scheduledListLoaded">
+      <div class="col-md-12" ng-show="!organizationLoaded">
         <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
-        <span>{{'prodbo.scheduled.loading' | translate}}</span>
+        <span>{{'cosaNostra.loading' | translate}}</span>
       </div>
-    </div>
-    <div class="row tab-content" ng-show="view == 'network'">
-      <div class="col-md-12" ng-show="networkLoaded">
-        <vis-network data="network.data" options="network.options" events="network.events"></vis-network>
-      </div>
-      <div class="col-md-12" ng-show="!networkLoaded">
-        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
-        <span>{{'prodbo.scheduled.loading' | translate}}</span>
-      </div>
-    </div>
-    <div class="row">
-      <div id="newBatchScheduledDialog"></div>
     </div>
   </div>
 </div>
