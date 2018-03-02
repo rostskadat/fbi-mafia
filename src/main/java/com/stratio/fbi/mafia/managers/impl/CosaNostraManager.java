@@ -34,10 +34,6 @@ public class CosaNostraManager implements ICosaNostraManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(CosaNostraManager.class);
 
-    private enum OrganizationType {
-        TREE, PATH, RELATION, NONE;
-    }
-
     @Value("${watchThreshold}")
     private Integer watchThreshold;
 
@@ -83,6 +79,11 @@ public class CosaNostraManager implements ICosaNostraManager {
     }
 
     @Override
+    public OrganizationType getOrganizationType() {
+        return OrganizationType.valueOf(organizationType);
+    }
+
+    @Override
     public void setOrganization(MafiaOrganization organization) {
         this.organization = organization;
     }
@@ -105,9 +106,6 @@ public class CosaNostraManager implements ICosaNostraManager {
 
     @Override
     public void releaseFromJail(String id) {
-        if (!jailManager.exists(id)) {
-            throw new ResourceNotFoundException("'id' doesn't exists: " + id);
-        }
 		MafiosoPosition position = jailManager.releaseFromJail(id);
 		Mafioso boss = StringUtils.isNotBlank(position.getBossId()) ? mafiosoManager.get(position.getBossId()) : null;
 		Mafioso mafioso = mafiosoManager.get(position.getMafiosoId());
@@ -138,6 +136,14 @@ public class CosaNostraManager implements ICosaNostraManager {
             }
         }
         return listToWatch;
+    }
+
+    public Integer getWatchThreshold() {
+        return watchThreshold;
+    }
+
+    public void setWatchThreshold(Integer watchThreshold) {
+        this.watchThreshold = watchThreshold;
     }
 
 }

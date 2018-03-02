@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -17,8 +14,6 @@ import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 import com.stratio.fbi.mafia.model.org.MafiosoPosition;
 
 public class TreeMafiaOrganization implements MafiaOrganization {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TreeMafiaOrganization.class);
 
 	private MafiaCell cupula;
 
@@ -64,6 +59,16 @@ public class TreeMafiaOrganization implements MafiaOrganization {
         return getSubordinates(mafioso, true);
 	}
 
+    @Override
+    public int getSubordinateCount(Mafioso mafioso) {
+        Iterator<Mafioso> i = getSubordinates(mafioso, true);
+        int count = 0;
+        while (i.hasNext()) {
+            i.next(); count++;
+        }
+        return count;
+    }
+
 	@Override
 	public void addSubordinate(Mafioso boss, Mafioso subordinate) {
 		MafiaCell bossCell = cupula.findMafiaCell(boss);
@@ -105,12 +110,10 @@ public class TreeMafiaOrganization implements MafiaOrganization {
     public void removeFromOrganization(Mafioso mafioso) {
         MafiaCell mafiaCell = cupula.findMafiaCell(mafioso);
         if (mafiaCell == null) {
-            LOG.warn(format("'%s' is not part of the organization", mafioso));
-			return;
+            throw new IllegalArgumentException(format("Mafioso #%s is not part of the organization", mafioso.getId()));
 		}
         MafiaCell bossCell = mafiaCell.getBossCell();
         if (bossCell == null) {
-            // Al Capone is gone
             cupula = promoteOldestOf(mafiaCell.getSubordinates());
         } else {
             List<MafiaCell> siblings = bossCell.getSubordinates();
@@ -159,11 +162,11 @@ public class TreeMafiaOrganization implements MafiaOrganization {
 	}
 
     private Iterator<Mafioso> getSubordinates(Mafioso mafioso, boolean goDeep) {
-    		MafiaCell mafiaCell = cupula.findMafiaCell(mafioso);
-    		if (mafiaCell == null) {
-    			throw new IllegalArgumentException(format("Mafios %s does not belong to the organization", mafioso));
-    		}
-        return new TreeIterator(new MafiaCellIterator(mafiaCell, false, goDeep));
+        MafiaCell mafiaCell = cupula.findMafiaCell(mafioso);
+        if (mafiaCell == null) {
+            throw new IllegalArgumentException(format("Mafios %s does not belong to the organization", mafioso));
+        }
+        return new TreeIterator(new MafiaCellIterator(mafiaCell, false, goDeep ? -1 : mafiaCell.getLevel() + 1));
     }
 
     private void promoteOldestSubordinateOf(MafiaCell bossCell, List<MafiaCell> siblings) {
@@ -190,6 +193,7 @@ public class TreeMafiaOrganization implements MafiaOrganization {
         if (oldest != null) {
             siblings.remove(oldest);
             oldest.getSubordinates().addAll(siblings);
+            oldest.setBossCell(null);
         }
         return oldest;
     }

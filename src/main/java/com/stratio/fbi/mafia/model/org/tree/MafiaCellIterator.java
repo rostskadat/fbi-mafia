@@ -17,34 +17,37 @@ public class MafiaCellIterator implements Iterator<MafiaCell> {
     private MafiaCell next;
     private Iterator<MafiaCell> childrenCurNodeIter;
     private Iterator<MafiaCell> childrenSubNodeIter;
-    private boolean goDeep;
+    private Integer maxDepth;
 
     public MafiaCellIterator(MafiaCell start) {
-        this(start, true, true);
+        this(start, true, -1);
 	}
 
-    public MafiaCellIterator(MafiaCell start, boolean includeStartNode, boolean goDeep) {
+    public MafiaCellIterator(MafiaCell start, boolean includeStartNode, int maxDepth) {
         this.stage = includeStartNode ? ProcessStages.PARENT : ProcessStages.CHILDREN_CURRENT_NODE;
         this.current = start;
-		this.childrenCurNodeIter = current.getSubordinates().iterator();
-        this.goDeep = goDeep;
+        this.childrenCurNodeIter = current.getSubordinates().iterator();
+        this.maxDepth = maxDepth;
 	}
 
 	@Override
 	public boolean hasNext() {
 
+        if (maxDepth != -1 && current.getLevel() > maxDepth) {
+            return false;
+        }
+	    
         if (stage == ProcessStages.PARENT) {
             next = current;
             stage = ProcessStages.CHILDREN_CURRENT_NODE;
 			return true;
 		}
 
-        // TODO: handle the goDeep flag...
-
         if (stage == ProcessStages.CHILDREN_CURRENT_NODE) {
             if (childrenCurNodeIter.hasNext()) {
 				MafiaCell childDirect = childrenCurNodeIter.next();
-				childrenSubNodeIter = childDirect.iterator();
+                // XXX:
+                childrenSubNodeIter = childDirect.iterator(true, maxDepth);
                 stage = ProcessStages.CHILDREN_SUB_NODE;
 				return hasNext();
             } else {

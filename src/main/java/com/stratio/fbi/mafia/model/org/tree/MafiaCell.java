@@ -117,4 +117,8 @@ public class MafiaCell implements Iterable<MafiaCell> {
 		return new MafiaCellIterator(this);
 	}
 
+    public Iterator<MafiaCell> iterator(boolean includeStartNode, int maxDepth) {
+        return new MafiaCellIterator(this, includeStartNode, maxDepth);
+    }
+
 }

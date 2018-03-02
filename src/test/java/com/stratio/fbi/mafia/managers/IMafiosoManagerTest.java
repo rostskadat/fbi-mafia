@@ -36,16 +36,17 @@ public class IMafiosoManagerTest extends AbstractUnitTest {
 
 	@Test
 	public void testAddMafioso() {
-		Mafioso alCapone = factory.createGodfather();
-		Mafioso mafioso = mafiosoManager.add(alCapone);
-		assertMafiosoEquals(alCapone, mafioso);
-		mafioso = mafiosoManager.get(mafioso.getId());
-		assertMafiosoEquals(alCapone, mafioso);
+        Cache cache = cacheManager.getCache(SimpleCacheConfig.GENERIC_CACHE);
+        cache.clear();
+        mafiosoManager.deleteAll();
+        Mafioso alCapone = factory.createGodfather(true);
+        Mafioso mafioso = mafiosoManager.get(alCapone.getId());
+        assertMafiososEquals(alCapone, mafioso);
 		int i = 0;
 		for (; i < 100; i++) {
 			// this one should hit the cache
-			mafioso = mafiosoManager.get(mafioso.getId());
-			assertMafiosoEquals(alCapone, mafioso);
+            mafioso = mafiosoManager.get(alCapone.getId());
+            assertMafiososEquals(alCapone, mafioso);
 		}
 		assertAttributeHasValue("CacheHits", i);
 	}
@@ -55,13 +56,13 @@ public class IMafiosoManagerTest extends AbstractUnitTest {
 		Mafioso alCapone = factory.createGodfather();
 		Mafioso mafioso = mafiosoManager.add(alCapone);
 		assertTrue(mafiosoManager.exists(mafioso.getId()));
-		assertMafiosoEquals(alCapone, mafioso);
+        assertMafiososEquals(alCapone, mafioso);
 		mafioso = mafiosoManager.get(mafioso.getId());
-		assertMafiosoEquals(alCapone, mafioso);
+        assertMafiososEquals(alCapone, mafioso);
 		mafioso.setFirstName("Alphonse Gabriel");
 		mafiosoManager.update(mafioso);
 		alCapone = mafiosoManager.get(mafioso.getId());
-		assertMafiosoEquals(alCapone, mafioso);
+        assertMafiososEquals(alCapone, mafioso);
 		assertEquals(alCapone.getFirstName(), "Alphonse Gabriel");
 	}
 
@@ -70,9 +71,9 @@ public class IMafiosoManagerTest extends AbstractUnitTest {
 		Mafioso alCapone = factory.createGodfather();
 		Mafioso mafioso = mafiosoManager.add(alCapone);
 		assertTrue(mafiosoManager.exists(mafioso.getId()));
-		assertMafiosoEquals(alCapone, mafioso);
+        assertMafiososEquals(alCapone, mafioso);
 		mafioso = mafiosoManager.get(mafioso.getId());
-		assertMafiosoEquals(alCapone, mafioso);
+        assertMafiososEquals(alCapone, mafioso);
 		mafiosoManager.delete(mafioso.getId());
 		try {
 			mafiosoManager.get(alCapone.getId());
@@ -82,15 +83,7 @@ public class IMafiosoManagerTest extends AbstractUnitTest {
 		}
 	}
 
-	private void assertMafiosoEquals(Mafioso m1, Mafioso m2) {
-		assertNotNull(m1);
-		assertNotNull(m2);
-		assertEquals(m1.getFirstName(), m2.getFirstName());
-		assertEquals(m1.getLastName(), m2.getLastName());
-		assertEquals(m1.getAge(), m2.getAge());
-	}
-
-	private void assertAttributeHasValue(String attribute, long value) {
+    private void assertAttributeHasValue(String attribute, long expected) {
 		Cache cache = cacheManager.getCache(SimpleCacheConfig.GENERIC_CACHE);
 		List<MBeanServer> mBeanServers = MBeanServerFactory.findMBeanServer(null);
 		try {
@@ -98,11 +91,28 @@ public class IMafiosoManagerTest extends AbstractUnitTest {
 			ObjectName objectName = new ObjectName(String
 			        .format("javax.cache:type=CacheStatistics,CacheManager=%s,Cache=%s", confFile, cache.getName()));
 			Long stat = (Long) mBeanServers.get(0).getAttribute(objectName, attribute);
-			assertEquals(Long.valueOf(value), stat);
+            assertTrue(Long.valueOf(expected) <= stat);
 		} catch (MalformedObjectNameException | InstanceNotFoundException | AttributeNotFoundException
 		        | ReflectionException | MBeanException | URISyntaxException e) {
 			assertTrue(e.getMessage(), false);
 		}
 
 	}
+
+    public static void assertMafiososEquals(Mafioso m1, Mafioso m2) {
+        assertNotNull(m1);
+        assertNotNull(m2);
+        assertEquals(m1.getFirstName(), m2.getFirstName());
+        assertEquals(m1.getLastName(), m2.getLastName());
+        assertEquals(m1.getAge(), m2.getAge());
+    }
+
+    public static Mafioso assertMafioso(Mafioso mafioso) {
+    	assertNotNull("Expected a non null mafioso", mafioso);
+    	assertNotNull("Expected a non-null mafioso.id", mafioso.getId());
+    	assertNotNull("Expected a non-null mafioso.firstName", mafioso.getFirstName());
+    	assertNotNull("Expected a non-null mafioso.lastName", mafioso.getLastName());
+    	assertNotNull("Expected a non-null mafioso.age", mafioso.getAge());
+    	return mafioso;
+    }
 }

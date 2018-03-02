@@ -1,5 +1,7 @@
 package com.stratio.fbi.mafia.managers.impl;
 
+import javax.cache.annotation.CacheRemoveAll;
+
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -47,6 +49,7 @@ public class MafiosoManager implements IMafiosoManager {
 
     @Override
     public boolean exists(String id) {
+        // XXX: weird things happen if I only send back the result of mafiosoRepository.exists
     	if (mafiosoRepository.exists(id)) {
             return true;
         }
@@ -66,6 +69,12 @@ public class MafiosoManager implements IMafiosoManager {
         } else {
             throw new ResourceNotFoundException("'id' doesn't exists: " + id);
         }
+    }
+
+    @Override
+    @CacheRemoveAll
+    public void deleteAll() {
+        mafiosoRepository.deleteAll();
     }
 
     @Override

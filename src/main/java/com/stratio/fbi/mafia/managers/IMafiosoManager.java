@@ -16,6 +16,8 @@ public interface IMafiosoManager {
 
     void delete(@NotNull String id);
 
+    void deleteAll();
+
     void update(@NotNull Mafioso mafioso);
 
 }

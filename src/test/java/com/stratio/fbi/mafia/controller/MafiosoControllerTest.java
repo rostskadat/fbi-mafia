@@ -15,6 +15,7 @@ import com.stratio.fbi.mafia.config.GlobalExceptionHandler.ApiError;
 import com.stratio.fbi.mafia.demo.CosaNostraFactory;
 import com.stratio.fbi.mafia.jpa.MafiosoRepository;
 import com.stratio.fbi.mafia.managers.ICosaNostraManager;
+import com.stratio.fbi.mafia.managers.IMafiosoManagerTest;
 import com.stratio.fbi.mafia.model.Mafioso;
 
 public class MafiosoControllerTest extends AbstractControllerTest {
@@ -66,7 +67,7 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 		assertEquals(response.getErrorMessage(), 200, response.getStatus());
 		String contentAsString = response.getContentAsString();
 		assertTrue(StringUtils.isNotBlank(contentAsString));
-		checkMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
+		IMafiosoManagerTest.assertMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
 	}
 
 	@Test
@@ -76,7 +77,7 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 		assertEquals(response.getErrorMessage(), 200, response.getStatus());
 		String contentAsString = response.getContentAsString();
 		assertTrue(StringUtils.isNotBlank(contentAsString));
-		Mafioso mafioso = checkMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
+		Mafioso mafioso = IMafiosoManagerTest.assertMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
 		assertTrue(StringUtils.equals(mafioso.getFirstName(), "UPDATED_FIRST_NAME"));
 	}
 
@@ -86,7 +87,7 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 		assertEquals(response.getErrorMessage(), 200, response.getStatus());
 		String contentAsString = response.getContentAsString();
 		assertTrue(StringUtils.isNotBlank(contentAsString));
-		Mafioso mafioso = checkMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
+		Mafioso mafioso = IMafiosoManagerTest.assertMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
 		assertEquals(mafioso.getFirstName(), deletedRecruit.getFirstName());
 		assertEquals(mafioso.getLastName(), deletedRecruit.getLastName());
 		assertEquals(mafioso.getAge(), deletedRecruit.getAge());
@@ -100,7 +101,7 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 		assertEquals(response.getErrorMessage(), 200, response.getStatus());
 		String contentAsString = response.getContentAsString();
 		assertTrue(StringUtils.isNotBlank(contentAsString));
-		Mafioso mafioso = checkMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
+		Mafioso mafioso = IMafiosoManagerTest.assertMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
 		assertEquals(mafioso.getFirstName(), addedRecruit.getFirstName());
 		assertEquals(mafioso.getLastName(), addedRecruit.getLastName());
 		assertEquals(mafioso.getAge(), addedRecruit.getAge());
@@ -108,7 +109,7 @@ public class MafiosoControllerTest extends AbstractControllerTest {
 		assertEquals(response.getErrorMessage(), 200, response.getStatus());
 		contentAsString = response.getContentAsString();
 		assertTrue(StringUtils.isNotBlank(contentAsString));
-		mafioso = checkMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
+		mafioso = IMafiosoManagerTest.assertMafioso(new ObjectMapper().readValue(contentAsString, Mafioso.class));
 		assertEquals(mafioso.getFirstName(), addedRecruit.getFirstName());
 		assertEquals(mafioso.getLastName(), addedRecruit.getLastName());
 		assertEquals(mafioso.getAge(), addedRecruit.getAge());
@@ -126,16 +127,7 @@ public class MafiosoControllerTest extends AbstractControllerTest {
         assertNotNull(mafiosos);
         assertFalse(mafiosos.isEmpty());
         for (Mafioso mafioso : mafiosos) {
-            checkMafioso(mafioso);
+            IMafiosoManagerTest.assertMafioso(mafioso);
         }
-	}
-
-	public static Mafioso checkMafioso(Mafioso mafioso) {
-		assertNotNull("Expected a non null mafioso", mafioso);
-		assertNotNull("Expected a non-null mafioso.id", mafioso.getId());
-		assertNotNull("Expected a non-null mafioso.firstName", mafioso.getFirstName());
-		assertNotNull("Expected a non-null mafioso.lastName", mafioso.getLastName());
-		assertNotNull("Expected a non-null mafioso.age", mafioso.getAge());
-		return mafioso;
 	}
 }

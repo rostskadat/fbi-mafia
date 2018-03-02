@@ -17,13 +17,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.TestComponent;
+import org.springframework.stereotype.Component;
 
 import com.stratio.fbi.mafia.managers.IMafiosoManager;
 import com.stratio.fbi.mafia.model.Mafioso;
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 
-@TestComponent
+@Component
 public class CosaNostraFactory {
 
 	private static final Log LOG = LogFactory.getLog(CosaNostraFactory.class);
@@ -55,12 +55,34 @@ public class CosaNostraFactory {
 		}
 	}
 
+    public MafiaOrganization createFixedOrganization(MafiaOrganization organization, boolean register) {
+        organization.erase();
+        organization.setCupula(createGodfather(register));
+        return createRandomOrganization(organization, register);
+        // Mafioso cupula = createGodfather(register);
+        // Mafioso r1 = createRandomMafioso(register);
+        // Mafioso r2 = createRandomMafioso(register);
+        // Mafioso r11 = createRandomMafioso(register);
+        // r11.setAge(40);
+        // Mafioso r12 = createRandomMafioso(register);
+        // r12.setAge(30);
+        // Mafioso r13 = createRandomMafioso(register);
+        // r13.setAge(20);
+        // organization.setCupula(cupula);
+        // organization.addSubordinate(cupula, r1);
+        // organization.addSubordinate(cupula, r2);
+        // organization.addSubordinate(r1, r11);
+        // organization.addSubordinate(r1, r12);
+        // organization.addSubordinate(r1, r13);
+        // return organization;
+    }
+
 	public MafiaOrganization getTreeOrganization() {
         return getTreeOrganization(false);
 	}
 
     public MafiaOrganization getTreeOrganization(boolean register) {
-        return createOrganization(createTree(createGodfather(register), isDeep), register);
+        return createRandomOrganization(createTree(createGodfather(register), isDeep), register);
     }
 
     public MafiaOrganization getPathListOrganization() {
@@ -68,7 +90,7 @@ public class CosaNostraFactory {
     }
 
     public MafiaOrganization getPathListOrganization(boolean register) {
-        return createOrganization(createPathList(createGodfather(register), isDeep), register);
+        return createRandomOrganization(createPathList(createGodfather(register), isDeep), register);
     }
 
     public MafiaOrganization getRelationListOrganization() {
@@ -76,7 +98,7 @@ public class CosaNostraFactory {
     }
 
     public MafiaOrganization getRelationListOrganization(boolean register) {
-        return createOrganization(createRelationList(createGodfather(register), isDeep), register);
+        return createRandomOrganization(createRelationList(createGodfather(register), isDeep), register);
     }
 
 	public Mafioso createGodfather() {
@@ -112,7 +134,7 @@ public class CosaNostraFactory {
         return mafioso;
     }
 
-    private MafiaOrganization createOrganization(MafiaOrganization organization, boolean register) {
+    private MafiaOrganization createRandomOrganization(MafiaOrganization organization, boolean register) {
 		ThreadLocalRandom random = ThreadLocalRandom.current();
 		List<Mafioso> mafiosos = new ArrayList<>();
 		Mafioso boss = organization.getCupula();

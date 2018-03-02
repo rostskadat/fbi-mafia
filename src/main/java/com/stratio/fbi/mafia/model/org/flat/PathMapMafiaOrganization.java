@@ -87,6 +87,11 @@ public class PathMapMafiaOrganization implements MafiaOrganization {
 	}
 
 	@Override
+    public int getSubordinateCount(Mafioso mafioso) {
+        return getSubordinates(mafioso, isDeepCount()).size();
+    }
+
+    @Override
 	public void addSubordinate(Mafioso boss, Mafioso subordinate) {
 		// First I need to find the boss in the list
 		String bossSuffix = format("/%s", boss.getId());

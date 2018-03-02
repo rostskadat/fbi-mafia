@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -23,7 +24,7 @@ public class Jail implements Serializable {
     @Column
     private Integer id;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
 	private List<Mafioso> prisoners;
 
     public Integer getId() {

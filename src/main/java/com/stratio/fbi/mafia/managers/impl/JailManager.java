@@ -30,7 +30,7 @@ public class JailManager implements IJailManager {
     @Override
     public MafiosoPosition releaseFromJail(String id) {
         if (jailRepository.exists(id)) {
-        		MafiosoPosition position = jailRepository.getOne(id);
+            MafiosoPosition position = jailRepository.findOne(id);
             jailRepository.delete(id);
             return position;
         }

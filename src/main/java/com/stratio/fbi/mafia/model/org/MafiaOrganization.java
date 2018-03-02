@@ -73,7 +73,15 @@ public interface MafiaOrganization {
      * @param boss
      * @return
      */
-	Iterator<Mafioso> getSubordinates(Mafioso boss);
+    Iterator<Mafioso> getSubordinates(Mafioso mafioso);
+
+    /**
+     * This method just returns a count of the subordinates for that specific {@link Mafioso}
+     * 
+     * @param boss
+     * @return the number of subordinates
+     */
+    int getSubordinateCount(Mafioso mafioso);
 
     /**
      * This method returns an {@link Iterator} on the list all mafioso in the organization. <br/>

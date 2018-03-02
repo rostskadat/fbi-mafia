@@ -97,6 +97,11 @@ public class RelationMapMafiaOrganization implements MafiaOrganization {
         return new ReadOnlyIterator(getSubordinates(mafioso, isDeepCount()).iterator());
 	}
 
+    @Override
+    public int getSubordinateCount(Mafioso mafioso) {
+        return getSubordinates(mafioso, isDeepCount()).size();
+    }
+
 	@Override
 	public void addSubordinate(Mafioso boss, Mafioso subordinate) {
 		String relation = format("%s/%s", boss.getId(), subordinate.getId());

@@ -3,6 +3,7 @@ package com.stratio.fbi.mafia.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -15,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stratio.fbi.mafia.AbstractControllerTest;
 import com.stratio.fbi.mafia.demo.CosaNostraFactory;
 import com.stratio.fbi.mafia.managers.ICosaNostraManager;
-import com.stratio.fbi.mafia.managers.IMafiosoManager;
+import com.stratio.fbi.mafia.managers.IMafiosoManagerTest;
 import com.stratio.fbi.mafia.model.Mafioso;
 import com.stratio.fbi.mafia.model.org.MafiaOrganization;
 
@@ -56,12 +57,18 @@ public class CosaNostraControllerTest extends AbstractControllerTest {
         assertTrue(StringUtils.isNotBlank(contentAsString));
         List<Mafioso> organization = new ObjectMapper().readValue(contentAsString, new TypeReference<List<Mafioso>>() {});
         assertNotNull(organization);
+        organization.forEach(new Consumer<Mafioso>() {
+            @Override
+            public void accept(Mafioso t) {
+                IMafiosoManagerTest.assertMafioso(t);
+            }
+        });
     }
 
     @Test
     public void testJail() throws Exception {
-    		// Ok testing to send the cupula to jail...
-    		MafiaOrganization organization = cosaNostra.getOrganization();
+        // Ok testing to send the cupula to jail...
+        MafiaOrganization organization = cosaNostra.getOrganization();
         Mafioso oldCupula = organization.getCupula();
         String oldCupulaId = oldCupula.getId();
         MockHttpServletResponse response = perform(defaultPost(URL_SEND_TO_JAIL, oldCupulaId));
@@ -81,10 +88,7 @@ public class CosaNostraControllerTest extends AbstractControllerTest {
         Mafioso newestCupula = organization.getCupula();
         String newestCupulaId = newestCupula.getId();
         assertTrue(StringUtils.equals(oldCupulaId, newestCupulaId));
-        assertEquals(newestCupula.getId(), oldCupula.getId());
-        assertEquals(newestCupula.getFirstName(), oldCupula.getFirstName());
-        assertEquals(newestCupula.getLastName(), oldCupula.getLastName());
-        assertEquals(newestCupula.getAge(), oldCupula.getAge());
+        IMafiosoManagerTest.assertMafiososEquals(newestCupula, oldCupula);
         
 		// and then some random guy within the organization
         organization.erase();
@@ -108,7 +112,5 @@ public class CosaNostraControllerTest extends AbstractControllerTest {
         assertEquals(response.getErrorMessage(), 200, response.getStatus());
         contentAsString = response.getContentAsString();
         assertTrue(StringUtils.isBlank(contentAsString));
-
-
     }
 }
