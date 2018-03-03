@@ -22,6 +22,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	@ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(value = ResourceNotFoundException.class)
     public ApiError handle(ResourceNotFoundException e) {
+		LOG.error(e.getMessage(), e);
         return new ApiError("INPUT", e.getMessage());
 	}
 
@@ -29,6 +30,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(value = IllegalArgumentException.class)
     public ApiError handle(IllegalArgumentException e) {
+		LOG.error(e.getMessage(), e);
         return new ApiError("REQUEST", e.getMessage());
 	}
 

@@ -32,80 +32,81 @@ import com.stratio.fbi.mafia.model.org.MafiosoPosition;
 @Component
 public class CosaNostraManager implements ICosaNostraManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CosaNostraManager.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CosaNostraManager.class);
 
-    @Value("${watchThreshold}")
-    private Integer watchThreshold;
+	@Value("${watchThreshold}")
+	private Integer watchThreshold;
 
-    @Value("${isSubordinateCountDeep:false}")
-    private Boolean isDeep;
+	@Value("${isSubordinateCountDeep:false}")
+	private Boolean isDeep;
 
-    @Value("${organizationType:NONE}")
-    private String organizationType;
+	@Value("${organizationType:NONE}")
+	private String organizationType;
 
-    @Autowired
-    private CosaNostraFactory factory;
+	@Autowired
+	private CosaNostraFactory factory;
 
-    @Autowired
-    IMafiosoManager mafiosoManager;
+	@Autowired
+	IMafiosoManager mafiosoManager;
 
-    @Autowired
-    IJailManager jailManager;
+	@Autowired
+	IJailManager jailManager;
 
-    MafiaOrganization organization;
+	MafiaOrganization organization;
 
-    @PostConstruct
-    private void postConstruct() {
-        switch (OrganizationType.valueOf(organizationType)) {
-        case TREE:
-            LOG.info("Creating random Treee MafiaOrganization");
-            organization = factory.getTreeOrganization(true);
-            break;
-        case PATH:
-            LOG.info("Creating random Path MafiaOrganization");
-            organization = factory.getPathListOrganization(true);
-            break;
-        case RELATION:
-            LOG.info("Creating random Relation MafiaOrganization");
-            organization = factory.getRelationListOrganization(true);
-            break;
-        case NONE:
-            LOG.info("Not creating any MafiaOrganization");
-            organization = null;
-            break;
-        default:
-            throw new BeanInitializationException("Invalid organizationType parameter in your application.properties");
-        }
-    }
+	@PostConstruct
+	private void postConstruct() {
+		switch (OrganizationType.valueOf(organizationType)) {
+		case TREE:
+			LOG.info("Creating random Treee MafiaOrganization");
+			organization = factory.getTreeOrganization(true);
+			break;
+		case PATH:
+			LOG.info("Creating random Path MafiaOrganization");
+			organization = factory.getPathListOrganization(true);
+			break;
+		case RELATION:
+			LOG.info("Creating random Relation MafiaOrganization");
+			organization = factory.getRelationListOrganization(true);
+			break;
+		case NONE:
+			LOG.info("Not creating any MafiaOrganization");
+			organization = null;
+			break;
+		default:
+			throw new BeanInitializationException("Invalid organizationType parameter in your application.properties");
+		}
+	}
 
-    @Override
-    public OrganizationType getOrganizationType() {
-        return OrganizationType.valueOf(organizationType);
-    }
+	@Override
+	public OrganizationType getOrganizationType() {
+		return OrganizationType.valueOf(organizationType);
+	}
 
-    @Override
-    public void setOrganization(MafiaOrganization organization) {
-        this.organization = organization;
-    }
+	@Override
+	public void setOrganization(MafiaOrganization organization) {
+		this.organization = organization;
+	}
 
-    @Override
-    public MafiaOrganization getOrganization() {
-        return organization;
-    }
+	@Override
+	public MafiaOrganization getOrganization() {
+		return organization;
+	}
 
-    @Override
-    public void sendToJail(String id) {
-        if (mafiosoManager.exists(id)) {
-            Mafioso mafioso = mafiosoManager.get(id);
-            jailManager.sendToJail(organization.getMafiosoPosition(mafioso));
-            organization.removeFromOrganization(mafioso);
-        } else {
-            throw new ResourceNotFoundException("'id' doesn't exists: " + id);
-        }
-    }
+	@Override
+	public void sendToJail(String id) {
+		if (mafiosoManager.exists(id)) {
+			Mafioso mafioso = mafiosoManager.get(id);
+			LOG.info(String.format("Sending %s %s to jail...", mafioso.getFirstName(), mafioso.getLastName()));
+			jailManager.sendToJail(organization.getMafiosoPosition(mafioso));
+			organization.removeFromOrganization(mafioso);
+		} else {
+			throw new ResourceNotFoundException("'id' doesn't exists: " + id);
+		}
+	}
 
-    @Override
-    public void releaseFromJail(String id) {
+	@Override
+	public void releaseFromJail(String id) {
 		MafiosoPosition position = jailManager.releaseFromJail(id);
 		Mafioso boss = StringUtils.isNotBlank(position.getBossId()) ? mafiosoManager.get(position.getBossId()) : null;
 		Mafioso mafioso = mafiosoManager.get(position.getMafiosoId());
@@ -116,34 +117,35 @@ public class CosaNostraManager implements ICosaNostraManager {
 				directSubordinates.add(mafiosoManager.get(t));
 			}
 		});
+		LOG.info(String.format("Releasing %s %s from jail...", mafioso.getFirstName(), mafioso.getLastName()));
 		organization.reinstateMafioso(boss, mafioso, directSubordinates);
-    }
+	}
 
-    @Override
-    public List<Mafioso> getWatchList() {
-        List<Mafioso> listToWatch = new ArrayList<>();
-        Iterator<Mafioso> i = organization.iterator();
-        while (i.hasNext()) {
-            Mafioso mafioso = i.next();
-            int subordinatesCount = 0;
-            Iterator<Mafioso> j = organization.getSubordinates(mafioso);
-            while (j.hasNext()) {
-                j.next();
-                subordinatesCount++;
-            }
-            if (subordinatesCount >= watchThreshold) {
-                listToWatch.add(mafioso);
-            }
-        }
-        return listToWatch;
-    }
+	@Override
+	public List<Mafioso> getWatchList() {
+		List<Mafioso> listToWatch = new ArrayList<>();
+		Iterator<Mafioso> i = organization.iterator();
+		while (i.hasNext()) {
+			Mafioso mafioso = i.next();
+			int subordinatesCount = 0;
+			Iterator<Mafioso> j = organization.getSubordinates(mafioso);
+			while (j.hasNext()) {
+				j.next();
+				subordinatesCount++;
+			}
+			if (subordinatesCount >= watchThreshold) {
+				listToWatch.add(mafioso);
+			}
+		}
+		return listToWatch;
+	}
 
-    public Integer getWatchThreshold() {
-        return watchThreshold;
-    }
+	public Integer getWatchThreshold() {
+		return watchThreshold;
+	}
 
-    public void setWatchThreshold(Integer watchThreshold) {
-        this.watchThreshold = watchThreshold;
-    }
+	public void setWatchThreshold(Integer watchThreshold) {
+		this.watchThreshold = watchThreshold;
+	}
 
 }

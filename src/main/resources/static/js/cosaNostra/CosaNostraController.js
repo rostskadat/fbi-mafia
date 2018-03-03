@@ -25,20 +25,21 @@
 	 * @requires explorerService {service} explorerService
 	 * @requires CosaNostraConstants {service} CosaNostraConstants
 	 */
-	function CosaNostraController($scope, $location, $routeParams, $q, I18nService,
-			CosaNostraService, CosaNostraConstants) {
+	function CosaNostraController($scope, $location, $routeParams, $q,
+			I18nService, CosaNostraService, CosaNostraConstants) {
 
 		var vm = this;
 
 		vm.scope = $scope;
 		$scope.controller = vm;
-		$scope.layoutMethod = "directed";
-		$scope.idsWatchList = [];
+
+		$scope.organizationLoaded = false;
+		$scope.watchlist = [];
 		$scope.organization = {
 			options : {
 				layout : {
 					hierarchical : {
-						sortMethod : $scope.layoutMethod,
+						sortMethod : "directed",
 						levelSeparation : 200,
 						direction : "UD"
 					}
@@ -50,50 +51,88 @@
 				}
 			}
 		};
-		$scope.organizationLoaded;
-
-		var groupOptions = {
-			groups : {
-				mafioso : {
-					shape : 'icon',
-					icon : {
-						face : 'FontAwesome',
-						code : '\uf007',
-						size : 100,
-						color : '#EE1B09'
-					}
-				},
-				mafiosoToWatch : {
-					shape : 'icon',
-					icon : {
-						face : 'FontAwesome',
-						code : '\uf007',
-						size : 50,
-						color : '#57169a'
-					}
+		$scope.jail = {
+			data : {
+				nodes : []
+			}
+		};
+		$scope.sortableOptions = {
+			placeholder : "mafioso",
+			connectWith : ".mafiosos-container",
+			stop : function(e, ui) {
+				// BEWARE of the index.
+				var elementClass = ui.item.sortable.droptarget[0].classList[2];
+				if (elementClass == "dropzone-jail") {
+					sendToJail(ui.item.sortable.model);
+				} else if (elementClass == "dropzone-free") {
+					releaseFromJail(ui.item.sortable.model);
 				}
+
 			}
 		};
 
+		/**
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 */
 		vm.init = init;
-		vm.updateOrganization = updateOrganization;
-		vm.updateWatchList = updateWatchList;
 		vm.getMafioso = getMafioso;
-		vm.sendToJail = sendToJail;
 		vm.releaseFromJail = releaseFromJail;
 
 		/**
 		 * @ngdoc function
-		 * @name fbi-mafia.cosaNostra:CosaNostraController#updateOrganization
+		 * @name fbi-mafia.cosaNostra:CosaNostraController#getMafioso
 		 * @methodOf fbi-mafia.cosaNostra:CosaNostraController
 		 * @description
 		 */
-		function updateOrganization() {
-			_getOrganization(_getOrganizationOk, _getOrganizationKo);
+		function getMafioso() {
+			CosaNostraService.getMafioso(function(response) {
+				console.log("displaying specific mafioso");
+			});
 		}
 
-		function _getOrganization(resolve, reject) {
-			CosaNostraService.getOrganization(resolve, reject);
+		function sendToJail(model) {
+			CosaNostraService.sendToJail(model.id, function(response) {
+				_updateOrganizationGraph();
+			});
+		}
+
+		function releaseFromJail(model) {
+			CosaNostraService.releaseFromJail(model.id, function(response) {
+				_updateOrganizationGraph();
+			});
+		}
+
+		/**
+		 * @ngdoc function
+		 * @name fbi-mafia.cosaNostra:CosaNostraController#init
+		 * @methodOf fbi-mafia.cosaNostra:CosaNostraController
+		 * @description
+		 */
+		function init() {
+			I18nService.setLanguage($routeParams['lang']);
+			_updateOrganizationGraph();
+		}
+
+		function _updateOrganizationGraph() {
+			var promise = $q(function(proceed, failed) {
+				setTimeout(function() {
+					CosaNostraService.getWatchList(proceed, failed);
+				}, 1000);
+			});
+			promise.then(function(response) {
+				angular.forEach(response.data, function(mafioso) {
+					$scope.watchlist.push(mafioso.id);
+				});
+				CosaNostraService.getOrganization(_getOrganizationOk,
+						_getOrganizationKo);
+			}, function(reason) {
+				console.log("Failed to load watchList: " + reason)
+			});
 		}
 
 		function _getOrganizationOk(response) {
@@ -111,76 +150,14 @@
 			console.log("Failed to load organization...");
 		}
 
-		/**
-		 * @ngdoc function
-		 * @name fbi-mafia.cosaNostra:CosaNostraController#updateWatchList
-		 * @methodOf fbi-mafia.cosaNostra:CosaNostraController
-		 * @description
-		 */
-		function updateWatchList() {
-			_getWatchList(_getWatchListOk, _getWatchListKo);
-		}
-
-		function _getWatchList(resolve, reject) {
-			CosaNostraService.getWatchList(resolve, reject);
-		}
-
-		function _getWatchListOk(response) {
-			angular.forEach(response.data, function(mafioso) {
-				this.push(mafioso.id);
-			}, $scope.idsWatchList);
-		}
-
-		function _getWatchListKo(response) {
-			console.log("Failed to load watchList...")
-		}
-
-		function getMafioso() {
-			CosaNostraService.getMafioso(function(response) {
-				console.log("displaying specific mafioso");
-			});
-		}
-
-		function sendToJail() {
-			CosaNostraService.sendToJail(function(response) {
-				console.log("mafioso to jail");
-			});
-		}
-
-		function releaseFromJail() {
-			CosaNostraService.releaseFromJail(function(response) {
-				console.log("releasing mafioso from jail");
-			});
-		}
-
-		function init() {
-			I18nService.setLanguage($routeParams['lang']);
-			var promise = _asyncUpdate();
-			promise.then(function(response) {
-				_getWatchListOk(response);
-				_getOrganization(_getOrganizationOk, _getOrganizationKo);
-			}, function(reason) {
-				_getWatchListKo(reason);
-			});
-		}
-
-		function _asyncUpdate(name) {
-			// perform some asynchronous operation, resolve or reject the promise when appropriate.
-			return $q(function(proceed, failed) {
-				setTimeout(function() {
-					_getWatchList(proceed, failed);
-				}, 1000);
-			});
-		}
-
 		function _buildNodesAndEdges(nodes, edges, mafiaCell) {
 			var mafioso = mafiaCell.mafioso;
-			var node ={
+			var node = {
 				id : mafioso.id,
 				label : mafioso.firstName + ' ' + mafioso.lastName + '\n'
 						+ mafioso.age
 			};
-			if ($scope.idsWatchList.indexOf(node.id) !== -1) {
+			if ($scope.watchlist.indexOf(node.id) !== -1) {
 				node.shape = 'star';
 				node.color = '#EE1B09';
 			}

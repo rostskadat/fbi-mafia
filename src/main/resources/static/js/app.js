@@ -3,7 +3,7 @@
 
     angular.module(
             'fbi-mafia',
-            [ 'ngRoute', 'ngResource', 'ngSanitize', 'pascalprecht.translate', 'fbi-mafia.common', 'fbi-mafia.I18n', 'fbi-mafia.filter', 'fbi-mafia.directive', 'fbi-mafia.cosaNostra' ]).config(
+            [ 'ngRoute', 'ngResource', 'ngSanitize', 'pascalprecht.translate', 'ui.sortable', 'fbi-mafia.common', 'fbi-mafia.I18n', 'fbi-mafia.filter', 'fbi-mafia.directive', 'fbi-mafia.cosaNostra' ]).config(
             [ '$routeProvider', '$httpProvider', '$locationProvider', '$sceDelegateProvider', ConfigFBI ]).filter(
             'escape', function() {
                 

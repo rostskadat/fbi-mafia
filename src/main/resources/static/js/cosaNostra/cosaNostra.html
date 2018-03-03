@@ -1,61 +1,47 @@
-<div class="col-md-12 content ng-cloak"
-	ng-controller="CosaNostraController as controller"
-	ng-init="controller.init()">
-	<div class="row" ng-controller="CosaNostraController as controller"
-		ng-init="controller.init()">
-		<div class="col-md-1"></div>
-		<div class="col-md-10">
-			<div class="row">
-				<div class="bd-callout bd-callout-info">
-					<h4>{{'cosaNostra.welcome.title' | translate}}</h4>
-					<span>{{'cosaNostra.welcome.description' | translate}}</span>
-				</div>
-			</div>
+<div class="col-md-12 content ng-cloak" ng-controller="CosaNostraController as controller" ng-init="controller.init()">
+  <div class="row" ng-controller="CosaNostraController as controller" ng-init="controller.init()">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+      <div class="row">
+        <div class="bd-callout bd-callout-info">
+          <h4>{{'cosaNostra.welcome.title' | translate}}</h4>
+          <span>{{'cosaNostra.welcome.description' | translate}}</span>
+        </div>
+      </div>
 
-			<div class="row tab-toolbar">
-				<div class="btn-group " role="group" aria-label="Actions">
-					<label type="button" class="btn btn-default"
-						ng-click="controller.updateOrganization()"
-						ng-disabled="! organizationLoaded"> <i
-						class="fa fa-refresh" aria-hidden="true"></i>
-						{{'cosaNostra.getOrganization' | translate}}
-					</label> <label type="button" class="btn btn-default"
-						ng-click="controller.updateWatchList()"> <i
-						class="fa fa-eye" aria-hidden="true"></i>
-						{{'cosaNostra.getWatchList' | translate}}
-					</label>
-				</div>
-				<div class="form-group">
-					<label for="mafiosoSelected">{{'cosaNostra.selected.label'
-						| translate}}</label> <input type="text" id="mafiosoSelected"
-						ng-model="selected" aria-describedby="selectMafiosoHelp"
-						placeholder="{{'cosaNostra.selected.placeholder' | translate}}"
-						uib-typeahead="node for node in organization.data.nodes | filter:$viewValue | limitTo:20"
-						typeahead-template-url="mafioso.html" typeahead-show-hint="true"
-						typeahead-min-length="0" ng-disabled="! organizationLoaded"
-						class="form-control"> <small id="selectMafiosoHelp"
-						class="form-text text-muted">{{'cosaNostra.selected.help' | translate}}</small>
-				</div>
-
-				<div class="btn-group " role="group" aria-label="Actions">
-					<!-- TODO: include the i18n directive to be able to change language -->
-					<i18n-select></i18n-select>
-
-				</div>
-			</div>
-			<div class="row tab-content vis-network-container">
-				<div class="col-md-12" ng-show="organizationLoaded">
-					<vis-network data="organization.data"
-						options="organization.options" events="organization.events"></vis-network>
-				</div>
-				<div class="col-md-12" ng-show="! organizationLoaded">
-					<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i> <span>{{'cosaNostra.loading'
-						| translate}}</span>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-1"></div>
-	</div>
+      <div class="row">
+        <div class="col-md-1">
+          <div class="row"><b>{{'cosaNostra.free' | translate}}</b></div>
+          <div class="row" ng-disabled="! organizationLoaded">
+            <div class="mafiosos-container mafiosos-container-free dropzone-free" ui-sortable="sortableOptions" ng-model="organization.data.nodes">
+              <div class="bg-danger mafioso" ng-repeat="mafioso in organization.data.nodes track by $index"><i ng-show="mafioso.shape == 'star'" style="color: red;" class="fa fa-star">&nbsp;</i>{{mafioso.label}}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-1">
+          <div class="row"><b>{{'cosaNostra.jail' | translate}}</b></div>
+          <div class="row" ng-disabled="! organizationLoaded">
+            <div class="mafiosos-container mafiosos-container-jailed dropzone-jail" ui-sortable="sortableOptions" ng-model="jail.data.nodes">
+              <div class="bg-success mafioso" ng-repeat="mafioso in jail.data.nodes track by $index"><i ng-show="mafioso.shape == 'star'" style="color: red;" class="fa fa-star">&nbsp;</i>{{mafioso.label}}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-10">
+          <div class="row"><b>{{'cosaNostra.organization' | translate}}</b></div>
+          <div class="row vis-network-container">
+            <div class="col-md-12" ng-show="organizationLoaded">
+              <vis-network data="organization.data" options="organization.options" events="organization.events"></vis-network>
+            </div>
+            <div class="col-md-12" ng-show="! organizationLoaded">
+              <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i> <span>{{'cosaNostra.loading' | translate}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-1"></div>
+  </div>
 </div>
 <script type="text/ng-template" id="mafioso.html">
 <span ng-bind-html="match.label.label | uibTypeaheadHighlight:query"></span>

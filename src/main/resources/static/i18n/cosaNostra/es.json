@@ -3,11 +3,8 @@
     "cosaNostra.i18n.spanish": "Espanol",
     "cosaNostra.welcome.title": "FBI Mafia Watchlist",
     "cosaNostra.welcome.description": "The FBI Mafia Watchlist allows you to get a list of people to put under surveillance. Mafiosi to watch are shown as a star.",
-    "cosaNostra.getOrganization": "getOrganization",
-    "cosaNostra.getWatchList": "getWatchList",
-    "cosaNostra.selected": "Select the Mafioso to work with",
-    "cosaNostra.selected.label": "Select a Mafioso",
-    "cosaNostra.selected.placeholder": "Search for a Mafioso",
-    "cosaNostra.selected.help": "Start typing the name of a Mafioso to select it",
+    "cosaNostra.free": "Free",
+    "cosaNostra.jail": "Jail",
+    "cosaNostra.organization" : "Cosa Nostra",
     "cosaNostra.loading": "Loading..."
 }
